@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Travel ID - 究極の旅診断</title>
     
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9SCPDPG40L"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      // IDを書き換えるのを忘れずに！↓
       gtag('config', 'G-9SCPDPG40L');
     </script>
 
@@ -511,6 +510,7 @@
     function handleAnswer(option, question) {
         if (option.type === 'pos') { for (const [key, val] of Object.entries(question.pos)) scores[key] += val * option.weight; }
         else if (option.type === 'neg') { for (const [key, val] of Object.entries(question.neg)) scores[key] += val * option.weight; }
+        
         currentQIndex++;
         if (currentQIndex < questions.length) renderQuestion(); else showResults();
     }
