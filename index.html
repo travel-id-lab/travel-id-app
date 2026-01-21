@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Travel ID - 究極の旅診断</title>
+    <link rel="icon" href="./images/logo.png">
     
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-9SCPDPG40L"></script>
     <script>
@@ -17,9 +18,9 @@
     <meta property="og:description" content="Discover your true travel personality. / あなたの旅のスタイルを13問で解明します。">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://travel-id-lab.github.io/travel-id-app/">
-    <meta property="og:image" content="https://travel-id-lab.github.io/travel-id-app/images/泥攻孤遊.png">
+    <meta property="og:image" content="https://travel-id-lab.github.io/travel-id-app/images/logo.png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://travel-id-lab.github.io/travel-id-app/images/泥攻孤遊.png">
+    <meta name="twitter:image" content="https://travel-id-lab.github.io/travel-id-app/images/logo.png">
 
     <style>
         :root {
@@ -30,7 +31,8 @@
             --text: #1e293b;
             --x-color: #000000;
             --discord-color: #5865F2;
-            --rare-gold: #FFD700;
+            --danger: #ef4444;
+            --match: #db2777;
         }
 
         body {
@@ -59,105 +61,87 @@
             position: relative;
         }
 
-        /* 言語切り替えスイッチ */
+        /* 言語スイッチ */
         .lang-switch {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #f1f5f9;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            border: 1px solid #e2e8f0;
-            color: #64748b;
+            top: 20px; right: 20px;
+            background: #f1f5f9; padding: 5px 10px; border-radius: 20px;
+            font-size: 12px; font-weight: bold; cursor: pointer;
+            border: 1px solid #e2e8f0; color: #64748b;
         }
-        .lang-switch:hover { background: #e2e8f0; color: var(--primary); }
 
         h1 { font-size: 24px; margin-bottom: 10px; font-weight: 800; margin-top: 10px; }
         h2 { font-size: 16px; color: #64748b; margin-bottom: 30px; font-weight: normal; }
         
-        /* MBTI Screen Styles */
-        .mbti-container { margin: 20px 0; text-align: left; }
-        .mbti-label { font-size: 14px; font-weight: bold; color: #64748b; margin-bottom: 8px; display: block; }
-        select.mbti-select { width: 100%; padding: 12px; font-size: 16px; border: 2px solid #e2e8f0; border-radius: 12px; background-color: #f8fafc; color: var(--text); cursor: pointer; font-weight: bold; }
-        select.mbti-select:focus { outline: none; border-color: var(--primary); }
-        .pre-result-msg { font-size: 15px; color: #475569; margin-bottom: 25px; }
+        .app-logo { display: block; margin: 20px auto; width: 140px; height: auto; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
 
-        .question-text {
-            font-size: 18px; font-weight: 700; margin-bottom: 30px; min-height: 72px; display: flex; align-items: center; justify-content: center;
-        }
+        /* Quiz UI */
+        .options-list { text-align: left; display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; }
+        .option-label { display: flex; align-items: center; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+        .option-label:hover { background-color: #f8fafc; border-color: #cbd5e1; }
+        .option-label.selected { border-color: var(--primary); background-color: #eff6ff; }
+        .option-radio { margin-right: 15px; transform: scale(1.2); accent-color: var(--primary); }
 
-        .btn-group { display: flex; flex-direction: column; gap: 12px; }
+        .nav-buttons { display: flex; justify-content: space-between; gap: 15px; }
+        .nav-btn { flex: 1; padding: 14px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .btn-back { background: #e2e8f0; color: #64748b; }
+        .btn-next { background: var(--primary); color: white; }
+        .btn-next:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        button {
-            padding: 16px; border: 2px solid #e2e8f0; border-radius: 16px; background: white; font-size: 16px; cursor: pointer; transition: all 0.2s; font-weight: 600; color: var(--text);
-        }
-        button:hover:not(:disabled) { background-color: #f1f5f9; border-color: var(--primary); }
-
-        button.start-btn, button.result-btn {
-            background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; font-size: 20px; padding: 20px 40px; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); width: 100%; margin-top: 20px;
-        }
-        button.start-btn:hover, button.result-btn:hover { opacity: 0.9; transform: translateY(-2px); }
-
-        /* Share Buttons */
-        .share-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        button.share-btn { color: white; border: none; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: bold; width: 100%; margin: 0; }
-        button.share-btn.x { background-color: var(--x-color); }
-        button.share-btn.x:hover { opacity: 0.8; transform: translateY(-2px); background-color: #333; }
-        button.share-btn.discord { background-color: var(--discord-color); }
-        button.share-btn.discord:hover { opacity: 0.8; transform: translateY(-2px); background-color: #4752C4; }
-
-        .discord-msg { font-size: 12px; color: #64748b; margin-top: 5px; line-height: 1.4; background: #f1f5f9; padding: 10px; border-radius: 8px; }
+        .question-text { font-size: 18px; font-weight: 700; margin-bottom: 20px; min-height: 60px; display: flex; align-items: center; justify-content: center; }
 
         /* Result Styles */
-        .image-container { width: 100%; height: 250px; border-radius: 16px; overflow: hidden; margin-bottom: 20px; background-color: #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .image-container { width: 100%; height: 250px; border-radius: 16px; overflow: hidden; margin-bottom: 20px; background-color: #e2e8f0; }
         .result-img { width: 100%; height: 100%; object-fit: cover; }
         .result-type-title { font-size: 18px; font-weight: bold; color: var(--primary); margin-bottom: 5px; }
-        .result-id { font-size: 42px; font-weight: 900; letter-spacing: 4px; margin: 0 0 20px 0; background: linear-gradient(45deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2; }
+        .result-id { font-size: 42px; font-weight: 900; letter-spacing: 4px; margin: 0 0 20px 0; background: linear-gradient(45deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .rare-banner { background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700); background-size: 200% 200%; color: #fff; padding: 15px; border-radius: 12px; margin-bottom: 25px; font-weight: 900; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); border: 3px solid #fff; box-shadow: 0 0 15px rgba(255, 215, 0, 0.6); animation: rareGlow 2s infinite alternate, gradientMove 3s ease infinite; }
-        @keyframes rareGlow { from { box-shadow: 0 0 5px rgba(255, 215, 0, 0.5); transform: scale(1); } to { box-shadow: 0 0 25px rgba(255, 215, 0, 0.9); transform: scale(1.02); } }
-        @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        .rare-star { color: #fff; font-size: 1.3em; margin: 0 5px; }
-        .rare-title { font-size: 22px; margin-top: 5px; letter-spacing: 2px; }
+        /* Match Section (Core Feature) */
+        .match-box {
+            background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+            border: 2px solid #fbcfe8;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .match-title { font-size: 12px; font-weight: bold; color: var(--match); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .match-content { font-size: 20px; font-weight: 900; color: #be185d; margin-bottom: 5px; }
+        .match-desc { font-size: 13px; color: #9d174d; line-height: 1.4; }
 
         .info-box { background: #f1f5f9; border-radius: 16px; padding: 20px; text-align: left; margin-bottom: 15px; border: 1px solid #e2e8f0; }
-        .info-title { font-size: 12px; font-weight: bold; color: #64748b; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .info-title { font-size: 12px; font-weight: bold; color: #64748b; margin-bottom: 5px; text-transform: uppercase; }
         .info-content { font-size: 16px; font-weight: bold; color: #334155; }
-        .match-tag { display: inline-block; background: linear-gradient(135deg, #f472b6, #db2777); color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; margin-top: 5px; }
 
-        .neutral-advice-box { margin-top: 10px; padding: 10px; background-color: rgba(255, 255, 255, 0.6); border-radius: 8px; font-size: 12px; color: #831843; border-left: 3px solid #db2777; display: none; }
+        /* NG Box (Milder) */
+        .ng-box { background: #fef2f2; border: 2px solid #fecaca; border-radius: 16px; padding: 20px; text-align: left; margin-bottom: 15px; }
+        .ng-title { font-size: 12px; font-weight: bold; color: var(--danger); margin-bottom: 5px; text-transform: uppercase; }
+        .ng-content { font-size: 16px; font-weight: bold; color: #b91c1c; }
+        .ng-reason { font-size: 13px; color: #7f1d1d; margin-top: 5px; line-height: 1.5; }
 
-        .result-description { text-align: left; font-size: 15px; color: #475569; margin-bottom: 30px; line-height: 1.8; }
+        /* Accordion for Details */
+        .details-toggle {
+            background: none; border: none; color: #64748b; font-size: 14px; font-weight: bold;
+            cursor: pointer; margin: 10px 0; text-decoration: underline;
+        }
+        .details-content { display: none; margin-top: 15px; animation: fadeIn 0.4s ease; }
+        .details-content.open { display: block; }
 
-        .spectrum-container { margin-top: 30px; text-align: left; padding-top: 20px; border-top: 2px dashed #e2e8f0;}
+        .spectrum-container { margin-top: 10px; text-align: left; padding-top: 10px; border-top: 1px dashed #e2e8f0;}
         .axis-row { margin-bottom: 25px; }
         .axis-labels { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 8px; color: #94a3b8; }
         .bar-bg { height: 10px; background: #e2e8f0; border-radius: 5px; position: relative; }
         .dot { width: 18px; height: 18px; background: white; border: 4px solid var(--primary); border-radius: 50%; position: absolute; top: 50%; transform: translate(-50%, -50%); transition: left 1s cubic-bezier(0.34, 1.56, 0.64, 1); left: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        
         .progress-bar { height: 6px; background: #e2e8f0; margin-bottom: 20px; border-radius: 3px; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
         .hidden { display: none; }
         .fade-in { animation: fadeIn 0.6s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Feedback Section */
+        button.start-btn { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; font-size: 20px; padding: 20px 40px; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); width: 100%; margin-top: 20px; border-radius: 16px; font-weight: bold; cursor: pointer; }
+        
         .feedback-area { margin-top: 40px; border-top: 1px dashed #e2e8f0; padding-top: 20px; }
-        .feedback-link {
-            display: inline-block;
-            background: #fff; color: #64748b;
-            border: 1px solid #cbd5e1;
-            padding: 8px 16px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: bold;
-            transition: all 0.2s;
-        }
-        .feedback-link:hover { background: #f1f5f9; color: var(--primary); border-color: var(--primary); }
+        .feedback-link { display: inline-block; background: #fff; color: #64748b; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -168,319 +152,184 @@
     <div id="start-screen">
         <h1 id="start-title">Travel ID 診断</h1>
         <h2 id="start-subtitle">あなたの旅のスタイルを<br>13問で解明します。</h2>
-        <div style="margin: 20px auto; width: 120px; height: 120px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px;">✈️</div>
-        
+        <img src="./images/logo.png" alt="Travel ID Logo" class="app-logo">
         <button class="start-btn" onclick="startQuiz()" id="start-btn-text">診断を始める</button>
-        <p style="font-size: 12px; color: #94a3b8; margin-top: 30px;">Global Edition + MBTI</p>
+        <p style="font-size: 12px; color: #94a3b8; margin-top: 30px;">Ver 12.0: Match & Balance</p>
     </div>
 
     <div id="quiz-screen" class="hidden">
         <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
         <div class="question-text" id="question-text">Loading...</div>
-        <div class="btn-group" id="options-container"></div>
+        <div class="options-list" id="options-container"></div>
+        <div class="nav-buttons">
+            <button class="nav-btn btn-back" onclick="prevQuestion()" id="btn-back">戻る</button>
+            <button class="nav-btn btn-next" onclick="nextQuestion()" id="btn-next" disabled>次へ</button>
+        </div>
     </div>
 
     <div id="pre-result-screen" class="hidden fade-in">
         <h1 id="pre-title">診断完了！</h1>
-        <p class="pre-result-msg" id="pre-subtitle">
-            最後の仕上げです。<br>MBTI（16タイプ診断）の結果を追加すると、より高精度な分析ができます。
-        </p>
-
-        <div class="mbti-container">
-            <label class="mbti-label" id="mbti-label-text">MBTIを選択 (任意/Optional):</label>
-            <select id="mbti-select" class="mbti-select">
-                <option value="">わからない / スキップ</option>
-                <option value="INTJ">INTJ (建築家)</option>
-                <option value="INTP">INTP (論理学者)</option>
-                <option value="ENTJ">ENTJ (指揮官)</option>
-                <option value="ENTP">ENTP (討論者)</option>
-                <option value="INFJ">INFJ (提唱者)</option>
-                <option value="INFP">INFP (仲介者)</option>
-                <option value="ENFJ">ENFJ (主人公)</option>
-                <option value="ENFP">ENFP (広報運動家)</option>
-                <option value="ISTJ">ISTJ (管理者)</option>
-                <option value="ISFJ">ISFJ (擁護者)</option>
-                <option value="ESTJ">ESTJ (幹部)</option>
-                <option value="ESFJ">ESFJ (領事)</option>
-                <option value="ISTP">ISTP (巨匠)</option>
-                <option value="ISFP">ISFP (冒険家)</option>
-                <option value="ESTP">ESTP (起業家)</option>
-                <option value="ESFP">ESFP (エンターテイナー)</option>
+        <p id="pre-subtitle">最後の仕上げです。<br>MBTIを追加すると精度が上がります。</p>
+        <div style="margin: 20px 0; text-align: left;">
+            <label style="font-size: 14px; font-weight: bold; color: #64748b;">MBTI (任意):</label>
+            <select id="mbti-select" style="width: 100%; padding: 12px; margin-top: 5px; border-radius: 12px; border: 2px solid #e2e8f0; background: #f8fafc;">
+                <option value="">わからない / Skip</option>
+                <option value="INTJ">INTJ</option><option value="INTP">INTP</option><option value="ENTJ">ENTJ</option><option value="ENTP">ENTP</option>
+                <option value="INFJ">INFJ</option><option value="INFP">INFP</option><option value="ENFJ">ENFJ</option><option value="ENFP">ENFP</option>
+                <option value="ISTJ">ISTJ</option><option value="ISFJ">ISFJ</option><option value="ESTJ">ESTJ</option><option value="ESFJ">ESFJ</option>
+                <option value="ISTP">ISTP</option><option value="ISFP">ISFP</option><option value="ESTP">ESTP</option><option value="ESFP">ESFP</option>
             </select>
         </div>
-
-        <button class="result-btn" onclick="calcAndShowResults()" id="show-result-btn-text">結果を見る</button>
+        <button class="start-btn" onclick="calcAndShowResults()" id="show-result-btn-text">結果を見る</button>
     </div>
 
     <div id="result-screen" class="hidden fade-in">
-        <div id="rare-banner" class="rare-banner hidden"></div>
-
-        <div class="image-container">
-            <img id="result-image" class="result-img" src="" alt="Result Image">
-        </div>
-        
+        <div class="image-container"><img id="result-image" class="result-img" src="" alt="Result"></div>
         <div class="result-type-title" id="result-title"></div>
         <div class="result-id" id="result-kanji"></div>
-
-        <div class="share-area">
-            <button class="share-btn x" onclick="shareOnX()">
-                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                <span id="share-btn-text">Xで結果をポスト</span>
-            </button>
-            
-            <button class="share-btn discord" onclick="copyForDiscord()">
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
-                <span id="discord-btn-text">Discord用にコピー</span>
-            </button>
-            <div class="discord-msg" id="discord-msg-text">
-                個人部屋に @kitsukuu. のメンション付きでシェアしてくれたらハチャメチャうれしいです！飛んでいきます✈️
-            </div>
-        </div>
-        
         <div class="result-description" id="result-desc-text"></div>
+
+        <div class="match-box">
+            <div class="match-title" id="label-match">❤️ 最高の旅パートナー</div>
+            <div class="match-content" id="result-match"></div>
+            <div class="match-desc" id="match-reason-text"></div>
+        </div>
 
         <div class="info-box">
             <div class="info-title" id="label-rec">🗺️ おすすめの旅先</div>
             <div class="info-content" id="result-rec"></div>
         </div>
+
+        <div class="ng-box">
+            <div class="ng-title" id="label-ng">💀 あなたにとっての地獄</div>
+            <div class="ng-content" id="result-ng-place"></div>
+            <div class="ng-reason" id="result-ng-reason"></div>
+        </div>
         
-        <div class="info-box">
-            <div class="info-title" id="label-item">🎒 必須アイテム</div>
-            <div class="info-content" id="result-item"></div>
+        <button class="details-toggle" onclick="toggleDetails()" id="btn-details">▼ 詳細スコア分析を見る</button>
+        <div class="details-content" id="details-section">
+            <div class="spectrum-container">
+                <div class="axis-row"><div class="axis-labels"><span id="axis-clean">清潔 (Clean)</span><span id="axis-mud">混沌 (Deep)</span></div><div class="bar-bg"><div class="dot" id="dot-1"></div></div></div>
+                <div class="axis-row"><div class="axis-labels"><span id="axis-safe">安全 (Safe)</span><span id="axis-active">挑戦 (Active)</span></div><div class="bar-bg"><div class="dot" id="dot-2"></div></div></div>
+                <div class="axis-row"><div class="axis-labels"><span id="axis-solo">ソロ (Solo)</span><span id="axis-social">交流 (Social)</span></div><div class="bar-bg"><div class="dot" id="dot-3"></div></div></div>
+                <div class="axis-row"><div class="axis-labels"><span id="axis-order">規律 (Order)</span><span id="axis-flow">柔軟 (Flow)</span></div><div class="bar-bg"><div class="dot" id="dot-4"></div></div></div>
+            </div>
+            <div id="neutral-advice" style="font-size:12px; color:#64748b; margin-top:10px;"></div>
         </div>
-
-        <div class="info-box" style="background: #fff1f2; border-color: #fecdd3;">
-            <div class="info-title" id="label-match" style="color: #db2777;">❤️ 最高の旅パートナー</div>
-            <div class="match-tag" id="result-match"></div>
-            <p style="font-size: 12px; margin-top: 8px; color: #831843;" id="text-match-desc">このタイプの人と行くと、互いに補い合い、最高の旅になります。</p>
-            <div id="neutral-advice" class="neutral-advice-box"></div>
-        </div>
-
-        <div class="spectrum-container">
-            <p style="font-size: 14px; font-weight: bold; margin-bottom: 15px;" id="label-score">詳細スコア分析</p>
-            <div class="axis-row">
-                <div class="axis-labels"><span id="axis-clean">清潔 (Clean)</span><span id="axis-mud">混沌 (Deep)</span></div>
-                <div class="bar-bg"><div class="dot" id="dot-1"></div></div>
-            </div>
-            <div class="axis-row">
-                <div class="axis-labels"><span id="axis-safe">安全 (Safe)</span><span id="axis-active">挑戦 (Active)</span></div>
-                <div class="bar-bg"><div class="dot" id="dot-2"></div></div>
-            </div>
-            <div class="axis-row">
-                <div class="axis-labels"><span id="axis-solo">ソロ (Solo)</span><span id="axis-social">交流 (Social)</span></div>
-                <div class="bar-bg"><div class="dot" id="dot-3"></div></div>
-            </div>
-            <div class="axis-row">
-                <div class="axis-labels"><span id="axis-order">規律 (Order)</span><span id="axis-flow">柔軟 (Flow)</span></div>
-                <div class="bar-bg"><div class="dot" id="dot-4"></div></div>
-            </div>
-        </div>
-
-        <button onclick="location.reload()" style="margin-top: 30px; width: 100%; background: #1e293b; color: white; border: none;" id="btn-top">トップに戻る</button>
 
         <div class="feedback-area">
-            <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;" id="feedback-msg">
-                開発者の励みになります！<br>バグ報告・改善案はこちら（匿名）
-            </p>
-            <a href="https://forms.gle/B5zNBkCAQKGs6A7c8" target="_blank" class="feedback-link" id="feedback-btn">
-                📝 フィードバックを送る
-            </a>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;" id="feedback-msg">開発者の励みになります！<br>バグ報告・改善案はこちら（匿名）</p>
+            <a href="https://forms.google.com/your-form-url" target="_blank" class="feedback-link" id="feedback-btn">📝 フィードバックを送る</a>
         </div>
+        <button onclick="location.reload()" style="margin-top: 30px; width: 100%; background: #1e293b; color: white; border: none; padding: 15px; border-radius: 12px;" id="btn-top">トップに戻る</button>
     </div>
 </div>
 
 <script>
-    // === 多言語データ ===
     let currentLang = 'ja';
-
     const translations = {
         ja: {
-            title: "Travel ID 診断",
-            subtitle: "あなたの旅のスタイルを<br>13問で解明します。",
-            startBtn: "診断を始める",
-            shareBtn: "Xで結果をポスト",
-            discordBtn: "Discord用にコピー",
-            discordMsg: "個人部屋に @kitsukuu. のメンション付きでシェアしてくれたらハチャメチャうれしいです！飛んでいきます✈️",
-            labelRec: "🗺️ おすすめの旅先",
-            labelItem: "🎒 必須アイテム",
-            labelMatch: "❤️ 最高の旅パートナー",
-            textMatchDesc: "このタイプの人と行くと、互いに補い合い、最高の旅になります。",
-            labelScore: "詳細スコア分析",
-            btnTop: "トップに戻る",
-            axes: { clean: "清潔・快適 (浄)", mud: "混沌・ディープ (泥)", safe: "安全・リラックス (安)", active: "挑戦・アクティブ (攻)", solo: "ソロ・内省 (孤)", social: "交流・ワイワイ (共)", order: "規律・計画的 (律)", flow: "柔軟・行き当たりばったり (遊)" },
-            rareMud: "究極のサバイバー", rareClean: "至高の聖域の住人",
-            neutralAdvice: "💡 ワンポイント:<br>あなたは「衛生観念」の数値が平均に近いため、柔軟性があります。<br>相手も極端な潔癖・不潔でなければ<strong>【$1】</strong>タイプの人でも、意外と許容できるかもしれません！",
-            cleanName: "浄（Clean）", mudName: "泥（Mud）",
-            preTitle: "診断完了！",
-            preSubtitle: "最後の仕上げです。<br>MBTI（16タイプ診断）の結果を追加すると、より高精度な分析ができます。",
-            mbtiLabel: "MBTIを選択 (任意):",
-            showResultBtn: "結果を見る",
-            feedbackMsg: "開発者の励みになります！<br>バグ報告・改善案はこちら（匿名）",
-            feedbackBtn: "📝 フィードバックを送る"
+            title: "Travel ID 診断", subtitle: "あなたの旅のスタイルを<br>13問で解明します。",
+            startBtn: "診断を始める", btnNext: "次へ", btnBack: "戻る",
+            labelRec: "🗺️ おすすめの旅先", labelNg: "💀 あなたにとっての地獄", labelMatch: "❤️ 最高の旅パートナー",
+            preTitle: "診断完了！", preSubtitle: "最後の仕上げです。<br>MBTIを追加すると精度が上がります。",
+            showResultBtn: "結果を見る", btnTop: "トップに戻る", btnDetails: "▼ 詳細スコア分析を見る",
+            feedbackMsg: "開発者の励みになります！<br>バグ報告・改善案はこちら（匿名）", feedbackBtn: "📝 フィードバックを送る",
+            axes: { clean: "清潔・快適 (浄)", mud: "混沌・ディープ (泥)", safe: "安全・リラックス (安)", active: "挑戦・アクティブ (攻)", solo: "ソロ・内省 (孤)", social: "交流・ワイワイ (共)", order: "規律・計画的 (律)", flow: "柔軟・行き当たりばったり (遊)" }
         },
         en: {
-            title: "Travel ID Diagnosis",
-            subtitle: "Discover your true travel style<br>in just 13 questions.",
-            startBtn: "Start Quiz",
-            shareBtn: "Share on X",
-            discordBtn: "Copy for Discord",
-            discordMsg: "Please share this in the channel and mention @kitsukuu.! I'd be super happy to see your result! ✈️",
-            labelRec: "🗺️ Recommended Destinations",
-            labelItem: "🎒 Must-Have Items",
-            labelMatch: "❤️ Best Travel Buddy",
-            textMatchDesc: "Traveling with this type complements your style for the best journey.",
-            labelScore: "Detailed Analysis",
-            btnTop: "Back to Top",
-            axes: { clean: "Clean & Comfort", mud: "Deep & Chaos", safe: "Safe & Relax", active: "Challenge & Active", solo: "Solo & Inner", social: "Social & Party", order: "Planned & Order", flow: "Flexible & Flow" },
-            rareMud: "The Ultimate Survivor", rareClean: "Sanctuary Dweller",
-            neutralAdvice: "💡 Tip:<br>Your hygiene standards are flexible.<br>Unless they are extreme, you might get along well with <strong>[$1]</strong> types!",
-            cleanName: "Clean", mudName: "Deep",
-            preTitle: "Diagnosis Complete!",
-            preSubtitle: "Final step.<br>Adding your MBTI (16 personalities) result will make the analysis more accurate.",
-            mbtiLabel: "Select MBTI (Optional):",
-            showResultBtn: "See Results",
-            feedbackMsg: "Found a bug or have feedback?<br>Send anonymous feedback here!",
-            feedbackBtn: "📝 Send Feedback"
+            title: "Travel ID Diagnosis", subtitle: "Discover your true travel style.",
+            startBtn: "Start Quiz", btnNext: "Next", btnBack: "Back",
+            labelRec: "🗺️ Recommended", labelNg: "💀 Your Hell (Avoid!)", labelMatch: "❤️ Best Travel Buddy",
+            preTitle: "Almost Done!", preSubtitle: "Add MBTI for better accuracy.",
+            showResultBtn: "See Results", btnTop: "Back to Top", btnDetails: "▼ View Detailed Analysis",
+            feedbackMsg: "Have feedback?", feedbackBtn: "📝 Send Feedback",
+            axes: { clean: "Clean", mud: "Deep", safe: "Safe", active: "Active", solo: "Solo", social: "Social", order: "Order", flow: "Flow" }
         }
     };
 
-    // 1. Result Data
     const resultData = {
         "泥攻孤遊": { 
-            ja: { title: "孤高のハードコア冒険家", desc: "最も過酷な環境を愛するタイプ。計画は一切立てず、その日の直感と出会いに身を任せる。快適さよりも「生の実感」を求め、誰も行かない場所へ一人で踏み込むことに至上の喜びを感じる。", rec: "インド（バラナシ）、アマゾン奥地", item: "高性能なバックパック、浄水ボトル", match: "泥攻孤律" },
-            en: { title: "The Lone Hardcore Adventurer", desc: "You love the harshest environments. No plans, just intuition. You seek the 'raw reality' over comfort and find joy in stepping into the unknown alone.", rec: "India (Varanasi), Amazon Rainforest", item: "High-spec Backpack, Water Purifier", match: "泥攻孤律" }
+            ja: { title: "孤高のハードコア冒険家", desc: "快適さより生の実感。直感で動く。", rec: "エチオピア（ダナキル砂漠）", match: "泥攻孤律", matchReason: "あなたの無謀な冒険を、彼らが「計画」として成立させてくれます。", ng: "オールインクルーシブ・リゾート", ngReason: "「管理された快適さ」は、あなたにとって退屈という名の拷問です。" },
+            en: { title: "The Lone Hardcore Adventurer", desc: "Raw reality over comfort.", rec: "Ethiopia", match: "泥攻孤律", matchReason: "They turn your reckless adventures into feasible plans.", ng: "All-Inclusive Resorts", ngReason: "Managed comfort is boredom torture for you." }
         },
         "泥攻孤律": { 
-            ja: { title: "ストイックな探検家", desc: "過酷な目標（例：未踏峰制覇）のために、綿密な準備とトレーニングを欠かさない。楽しみのための旅ではなく「ミッション」としての旅を好む。", rec: "キリマンジャロ登山、パタゴニア", item: "登山靴、詳細な地形図", match: "泥攻孤遊" },
-            en: { title: "The Stoic Explorer", desc: "You prepare meticulously for tough goals (e.g., unclimbed peaks). You view travel not as leisure, but as a 'mission'.", rec: "Mt. Kilimanjaro, Patagonia", item: "Hiking Boots, Topo Maps", match: "泥攻孤遊" }
+            ja: { title: "ストイックな探検家", desc: "過酷な目標への準備を怠らない。", rec: "ネパール（エベレスト街道）", match: "泥攻孤遊", matchReason: "彼らの突飛な発想が、あなたのミッションに新しい風を吹き込みます。", ng: "映え重視のナイトプール", ngReason: "「意味のない消費」に耐えられず、開始5分で帰りたくなります。" },
+            en: { title: "The Stoic Explorer", desc: "Meticulous prep for tough goals.", rec: "Nepal", match: "泥攻孤遊", matchReason: "Their wild ideas bring fresh air to your missions.", ng: "Trendy Night Pools", ngReason: "Meaningless consumption stresses you out." }
         },
         "泥攻共遊": { 
-            ja: { title: "お祭り騒ぎのサバイバー", desc: "「ヤバい場所」で仲間と大騒ぎするのが大好き。トラブルすらも笑い話に変えるポジティブさを持つ。衛生観念は低いが、その場のノリと体力で全てを乗り切る。", rec: "タイ（パンガン島）、ブラジル（カーニバル）", item: "スピーカー、GoPro", match: "泥攻共律" },
-            en: { title: "The Party Survivor", desc: "You love partying in chaotic places. You turn trouble into laughter. Hygiene standards are low, but your energy conquers all.", rec: "Thailand (Full Moon Party), Brazil", item: "Speaker, GoPro", match: "泥攻共律" }
+            ja: { title: "お祭り騒ぎのサバイバー", desc: "混沌と騒音を愛する。", rec: "ブラジル（リオのカーニバル）", match: "泥攻共律", matchReason: "彼らがリスク管理してくれるので、あなたは安心して暴れられます。", ng: "山奥の禅寺で瞑想", ngReason: "「静寂」と「規則」は、あなたのエネルギーを奪う毒です。" },
+            en: { title: "The Party Survivor", desc: "Loves chaos and noise.", rec: "Brazil", match: "泥攻共律", matchReason: "They manage the risks so you can party safely.", ng: "Silent Meditation Retreat", ngReason: "Silence and rules drain your energy." }
         },
         "泥攻共律": { 
-            ja: { title: "過酷ツアーの熱血リーダー", desc: "ハードな旅程（例：ジャングル縦走）を企画し、仲間を率いる隊長タイプ。リスク管理はしっかり行うが、求める体験のレベルが高すぎるため、ついて来られる人は限られるかも。", rec: "マチュピチュ遺跡、サファリツアー", item: "トランシーバー、予備バッテリー", match: "泥攻共遊" },
-            en: { title: "The Hardcore Expedition Leader", desc: "You plan tough itineraries (e.g., jungle trekking) and lead the team. Your risk management is solid, but your standards for adventure are high.", rec: "Machu Picchu, Safari Tour", item: "Walkie-Talkie, Spare Batteries", match: "泥攻共遊" }
+            ja: { title: "過酷ツアーの熱血リーダー", desc: "ハードな旅を統率する。", rec: "ペルー（インカ道）", match: "泥攻共遊", matchReason: "あなたの完璧な計画に、彼らが最高の盛り上がりを提供します。", ng: "自由行動のみのビーチ", ngReason: "「何も計画がない」状態にイライラし、勝手に仕切り始めてしまいます。" },
+            en: { title: "The Expedition Leader", desc: "Leads hardcore trips.", rec: "Peru", match: "泥攻共遊", matchReason: "They bring the hype to your perfect plans.", ng: "Unplanned Beach Day", ngReason: "Lack of plan frustrates you." }
         },
         "泥安孤遊": { 
-            ja: { title: "ディープな街の放浪詩人", desc: "観光地ではない、現地の生活感が溢れる路地裏を好む。特別な何かをするわけではなく、ただそこに「居る」ことを楽しむ。社会的な交流は避け、自分の世界に浸る。", rec: "ベトナム（ハノイ）、ポルトガル", item: "フィルムカメラ、文庫本", match: "泥安共遊" },
-            en: { title: "The Wandering Poet", desc: "You prefer gritty back alleys over tourist spots. You enjoy just 'being' there. You avoid socializing and immerse yourself in your own world.", rec: "Vietnam (Hanoi), Portugal", item: "Film Camera, Paperback Book", match: "泥安共遊" }
+            ja: { title: "ディープな街の放浪詩人", desc: "路地裏の生活感を愛する。", rec: "ポルトガル（リスボン）", match: "泥安共遊", matchReason: "内向的なあなたを、彼らが適度に外の世界へ連れ出してくれます。", ng: "ドバイの超高層モール", ngReason: "「作られた煌びやかさ」に虚無を感じ、心が死にます。" },
+            en: { title: "The Wandering Poet", desc: "Loves gritty alleys.", rec: "Portugal", match: "泥安共遊", matchReason: "They gently drag you out to the world.", ng: "Dubai Mega Malls", ngReason: "Artificial glitz makes you feel empty." }
         },
         "泥安孤律": { 
-            ja: { title: "マニアックな研究者", desc: "特定のニッチな対象（例：辺境の遺跡、奇妙な食文化）を研究するために旅をする。行動範囲は狭くリスクは取らないが、対象への没入度は凄まじい。", rec: "エジプト、カンボジア", item: "双眼鏡、専門書", match: "泥安共律" },
-            en: { title: "The Maniac Researcher", desc: "You travel to study niche subjects (e.g., remote ruins). You don't take risks, but your immersion in the subject is intense.", rec: "Egypt, Cambodia", item: "Binoculars, Academic Books", match: "泥安共律" }
+            ja: { title: "マニアックな研究者", desc: "ニッチな対象に没入する。", rec: "カンボジア（ベンメリア）", match: "泥安共律", matchReason: "あなたの研究旅行のコストを、彼らが劇的に下げてくれます。", ng: "ウェーイ系の泡パーティー", ngReason: "「ノリ」だけで中身のない空間は、あなたにとって宇宙人の襲来と同じです。" },
+            en: { title: "The Maniac Researcher", desc: "Immersion in niche subjects.", rec: "Cambodia", match: "泥安共律", matchReason: "They drastically lower your research trip costs.", ng: "Foam Party", ngReason: "Places with only 'vibes' confuse you." }
         },
         "泥安共遊": { 
-            ja: { title: "下町の愛されキャラ", desc: "安宿のドミトリーや地元の食堂で、いつの間にか現地の人と仲良くなっている。計画性がなく、お金もないが、愛嬌とコミュニケーション能力で何とかしてしまう。", rec: "カオサン通り、メキシコ", item: "折り紙、翻訳アプリ", match: "泥安孤遊" },
-            en: { title: "The Local's Favorite", desc: "You make friends instantly at hostels or local diners. No plan, no money, but your charm and communication skills get you through.", rec: "Khaosan Road, Mexico", item: "Origami, Translation App", match: "泥安孤遊" }
+            ja: { title: "下町の愛されキャラ", desc: "現地の人と即仲良くなる。", rec: "メキシコ（オアハカ）", match: "泥安孤遊", matchReason: "彼らの深い知識が、あなたの旅に深みを与えてくれます。", ng: "高級フレンチの個室", ngReason: "「マナー」と「沈黙」に縛られ、あなたの良さが全消しになります。" },
+            en: { title: "The Local's Favorite", desc: "Instant friends with locals.", rec: "Mexico", match: "泥安孤遊", matchReason: "Their deep knowledge adds depth to your trip.", ng: "Fine Dining Private Room", ngReason: "Manners and silence kill your charm." }
         },
         "泥安共律": { 
-            ja: { title: "激安ツアーのしっかり者", desc: "「いかに安く、ディープな体験をするか」に命をかける節約旅行家。不便さは許容するが、無駄な出費は許さない。グループ旅行では会計係として重宝される。", rec: "ラオス、インド（鉄道）", item: "電卓、S字フック", match: "泥安孤律" },
-            en: { title: "The Budget Master", desc: "You live to travel cheaply but deeply. You tolerate inconvenience but hate waste. You are the treasurer of the group.", rec: "Laos, India (Railway)", item: "Calculator, S-Hooks", match: "泥安孤律" }
+            ja: { title: "激安ツアーのしっかり者", desc: "安くディープに。無駄を嫌う。", rec: "インド（鉄道）", match: "泥安孤律", matchReason: "彼らのマニアックな目的が、あなたの「安く濃く」という欲求を満たします。", ng: "空港のぼったくりタクシー", ngReason: "金額そのものより「カモにされた」という事実に怒りで震えます。" },
+            en: { title: "The Budget Master", desc: "Cheap and deep.", rec: "India", match: "泥安孤律", matchReason: "Their maniac goals satisfy your desire for value.", ng: "Overpriced Tourist Taxi", ngReason: "Getting ripped off makes you tremble with rage." }
         },
         "浄攻孤遊": { 
-            ja: { title: "スタイリッシュな自由人", desc: "清潔で洗練された空間を好むが、行動は自由奔放。最新のデザインホテルに泊まりつつ、昼間は気の向くままに街を散策する。自分のセンスに絶対の自信を持つ。", rec: "ニューヨーク、パリ", item: "MacBook、サングラス", match: "浄攻孤律" },
-            en: { title: "The Stylish Free Spirit", desc: "You love clean, sophisticated spaces but act spontaneously. You stay in design hotels and wander the city freely. You trust your taste implicitly.", rec: "NYC (SoHo), Paris", item: "MacBook, Sunglasses", match: "浄攻孤律" }
+            ja: { title: "スタイリッシュな自由人", desc: "洗練と自由を愛する。", rec: "NY（ブルックリン）", match: "浄攻孤律", matchReason: "お互いのセンスを尊重しつつ、適度な距離感で旅ができます。", ng: "衛生観念の低いドミトリー", ngReason: "「ダニ」や「カビ」の気配を感じた瞬間、旅を楽しむどころではなくなります。" },
+            en: { title: "The Stylish Free Spirit", desc: "Loves style and freedom.", rec: "NYC", match: "浄攻孤律", matchReason: "You respect each other's taste and space.", ng: "Dirty Hostels", ngReason: "Hygiene issues ruin your trip instantly." }
         },
         "浄攻孤律": { 
-            ja: { title: "完璧主義の絶景ハンター", desc: "最高の「一枚」を撮るためなら、高級機材を担いで早朝から行動する。ただし、宿泊先や移動手段は快適で確実なものを手配済み。", rec: "スイス、ウユニ塩湖", item: "一眼レフカメラ、三脚", match: "浄攻孤遊" },
-            en: { title: "The Perfectionist View Hunter", desc: "You wake up early with heavy gear for the perfect shot. However, your accommodation and transport are always comfortable and booked.", rec: "Switzerland, Uyuni Salt Flat", item: "DSLR Camera, Tripod", match: "浄攻孤遊" }
+            ja: { title: "完璧主義の絶景ハンター", desc: "最高の瞬間のために動く。", rec: "アイスランド", match: "浄攻孤遊", matchReason: "あなたの完璧な計画に、彼らがオシャレな抜け感を作ってくれます。", ng: "行き当たりばったりの野宿", ngReason: "「充電できない」「シャワーがない」等の不測の事態は許容できません。" },
+            en: { title: "The Perfectionist", desc: "Chasing the perfect shot.", rec: "Iceland", match: "浄攻孤遊", matchReason: "They add a stylish twist to your perfect plan.", ng: "Random Camping", ngReason: "You cannot tolerate unpredicted inconvenience." }
         },
         "浄攻共遊": { 
-            ja: { title: "キラキラ女子旅のカリスマ", desc: "最新のトレンドスポットや映えるカフェを巡るのが大好き。計画は「その時のテンション」で変わるが、清潔感とオシャレさだけは譲れない。", rec: "韓国、ドバイ、LA", item: "自撮り棒、ヘアアイロン", match: "浄攻共律" },
-            en: { title: "The Trendy Charisma", desc: "You love trending spots and photogenic cafes. Plans change with your mood, but cleanliness and style are non-negotiable.", rec: "Korea, Dubai, LA", item: "Selfie Stick, Hair Iron", match: "浄攻共律" }
+            ja: { title: "キラキラ女子旅のカリスマ", desc: "トレンドと映えを巡る。", rec: "韓国（聖水洞）", match: "浄攻共律", matchReason: "彼らが予約や移動を完璧にしてくれるので、あなたは撮影に集中できます。", ng: "電波のないジャングル", ngReason: "「シェアできない体験」は、あなたにとって存在しないのと同じです。" },
+            en: { title: "The Trendy Charisma", desc: "Trends and photos.", rec: "Korea", match: "浄攻共律", matchReason: "They handle logistics so you can focus on photos.", ng: "Offline Jungle", ngReason: "Experiences you can't share don't exist." }
         },
         "浄攻共律": { 
-            ja: { title: "アクティブ・リゾートの幹事長", desc: "高級リゾートでのゴルフやダイビングなど、快適かつ活動的な旅を計画する。全員が楽しめるように完璧なスケジュールを組み、レストラン予約も抜かりない。", rec: "ハワイ、オーストラリア", item: "ゴルフバッグ、日焼け止め", match: "浄攻共遊" },
-            en: { title: "The Active Resort Planner", desc: "You plan active trips like golf or diving at luxury resorts. You schedule everything perfectly so everyone enjoys the trip.", rec: "Hawaii, Australia", item: "Golf Bag, Sunscreen", match: "浄攻共遊" }
+            ja: { title: "アクティブ・リゾートの幹事長", desc: "快適かつ活動的な完璧な旅。", rec: "ハワイ（ゴルフ）", match: "浄攻共遊", matchReason: "あなたの計画した最高のリゾートを、彼らが誰よりも楽しんでくれます。", ng: "安宿の共同バスルーム", ngReason: "「他人の髪の毛」を見た瞬間、あなたの完璧な旅は終了します。" },
+            en: { title: "The Resort Planner", desc: "Active luxury.", rec: "Hawaii", match: "浄攻共遊", matchReason: "They enjoy your planned luxury more than anyone.", ng: "Shared Bathroom", ngReason: "Other people's mess ends your trip." }
         },
         "浄安孤遊": { 
-            ja: { title: "優雅なホテルステイ愛好家", desc: "旅の目的は「何もしないこと」。最高級のホテルの部屋やラウンジで、一日中本を読んだり景色を眺めたりして過ごす。誰にも邪魔されない時間を愛する。", rec: "モルディブ、バリ島", item: "Kindle、アロマオイル", match: "浄安孤律" },
-            en: { title: "The Elegant Hotel Lover", desc: "Your goal is to do nothing. You spend all day in a luxury hotel room reading or gazing at the view. You love undisturbed silence.", rec: "Maldives, Bali", item: "Kindle, Aroma Oil", match: "浄安孤律" }
+            ja: { title: "優雅なホテルステイ愛好家", desc: "何もしない贅沢。", rec: "モルディブ", match: "浄安孤律", matchReason: "お互いに干渉せず、静かな時間を共有できる最高のパートナーです。", ng: "弾丸バスツアー", ngReason: "「朝6時集合」「10分で観光」というスケジュールは、もはや拷問です。" },
+            en: { title: "The Hotel Lover", desc: "Luxury of doing nothing.", rec: "Maldives", match: "浄安孤律", matchReason: "Best partner to share silence without interference.", ng: "Rushed Bus Tour", ngReason: "Tight schedules are torture for you." }
         },
         "浄安孤律": { 
-            ja: { title: "慎重派の癒やし求道者", desc: "絶対に失敗しない、安全で清潔な旅しかしない。評判の良い温泉旅館やリトリート施設を早期に予約し、決まったルーティンで心身を癒やす。", rec: "京都、フィンランド", item: "マイ枕、常備薬", match: "浄安共律" },
-            en: { title: "The Cautious Healer", desc: "You take no risks. You book highly-rated ryokans or retreats early and follow a routine to heal your mind and body.", rec: "Kyoto, Finland", item: "My Pillow, Medicine", match: "浄安共律" }
+            ja: { title: "慎重派の癒やし求道者", desc: "安全で清潔な癒やし。", rec: "フィンランド", match: "浄安共律", matchReason: "リスク管理のレベルが同じなので、余計なストレスを感じません。", ng: "インドのバラナシ", ngReason: "「混沌」「不衛生」「客引き」の3連コンボで、空港から出られなくなります。" },
+            en: { title: "The Cautious Healer", desc: "Safe and clean healing.", rec: "Finland", match: "浄安共律", matchReason: "Same risk management level means no stress.", ng: "Varanasi, India", ngReason: "Chaos and hygiene issues will make you hide." }
         },
         "浄安共遊": { 
-            ja: { title: "のんびり温泉旅行グループ", desc: "気の合う仲間や家族と、清潔な宿でのんびり過ごすのが好き。細かい計画は立てず、「とりあえず温泉入って美味しいもの食べよう」というゆるいスタンス。", rec: "台湾、北海道", item: "トランプ、お菓子", match: "浄安孤遊" },
-            en: { title: "The Chill Spa Group", desc: "You love relaxing in clean inns with friends/family. No detailed plans, just 'let's soak in the hot spring and eat good food'.", rec: "Taiwan, Hokkaido", item: "Cards, Snacks", match: "浄安孤遊" }
+            ja: { title: "のんびり温泉旅行グループ", desc: "清潔な宿でまったり。", rec: "台湾（北投温泉）", match: "浄安孤遊", matchReason: "彼らの知る「隠れ家宿」が、あなたの旅をワンランク上げてくれます。", ng: "スラム街のスタディツアー", ngReason: "「現実の厳しさ」よりも「温かいご飯」が必要です。緊張感に耐えられません。" },
+            en: { title: "The Chill Group", desc: "Relaxing with friends.", rec: "Taiwan", match: "浄安孤遊", matchReason: "Their hidden gems upgrade your trip.", ng: "Slum Tour", ngReason: "You need comfort food, not harsh reality." }
         },
         "浄安共律": { 
-            ja: { title: "王道のパッケージツアー客", desc: "大手旅行会社の添乗員付きツアーを好む。移動、食事、宿泊、全てがお膳立てされた安全・安心・清潔な旅こそが至高。自分で調べる手間を嫌い、プロに任せたい。", rec: "イタリア、クルーズ旅行", item: "首下げパスポートケース", match: "浄安孤律" },
-            en: { title: "The Classic Tour Tourist", desc: "You prefer guided tours. Safe, secure, and clean travel where everything is arranged is supreme. You trust pros over DIY.", rec: "Italy, Cruise Trip", item: "Passport Holder", match: "浄安孤律" }
+            ja: { title: "王道のパッケージツアー客", desc: "安心・安全が至高。", rec: "イタリア（周遊）", match: "浄安孤律", matchReason: "お互いにルールを守るので、トラブル知らずの平和な旅になります。", ng: "南米のヒッチハイク", ngReason: "「明日どこに泊まるかわからない」という不安で、夜も眠れなくなります。" },
+            en: { title: "The Package Tourist", desc: "Safety is supreme.", rec: "Italy", match: "浄安孤律", matchReason: "You both follow rules, ensuring a peaceful trip.", ng: "Hitchhiking", ngReason: "Uncertainty keeps you awake at night." }
         }
     };
 
-    // 2. Questions (Multi-language)
     const questions = [
-        { 
-            ja: "絶景や一生に一度の体験のためなら、シャワーがなく衛生状態が悪い宿でも数日は我慢できる。", 
-            en: "For a once-in-a-lifetime view, I can endure days without a shower in poor sanitary conditions.",
-            pos: { mud: 2, active: 1 }, neg: { clean: 2, safe: 1 } 
-        },
-        { 
-            ja: "旅行のスケジュールは、分刻みで決めるよりも「その場の気分」で決める余白を多く残したい。", 
-            en: "I prefer leaving my schedule open to spontaneity rather than planning every minute.",
-            pos: { flow: 2, safe: 0.5 }, neg: { order: 2, active: 0.5 } 
-        },
-        { 
-            ja: "安全なリゾート地よりも、少し危険な匂いのする路地裏や、地図にない場所の方にワクワクする。", 
-            en: "I get more excited by gritty back alleys and unmapped places than safe resorts.",
-            pos: { active: 2, mud: 1 }, neg: { safe: 2, clean: 1 } 
-        },
-        { 
-            ja: "旅先での食事は、個室でゆっくりよりも、現地の人と相席になるような賑やかな場所が好きだ。", 
-            en: "I prefer lively local eateries where I might share a table over private dining.",
-            pos: { social: 2, mud: 0.5 }, neg: { solo: 2, clean: 0.5 } 
-        },
-        { 
-            ja: "電車の運休などで予定が完全に崩れた時、パニックになるよりも「面白い展開になった」と感じる。", 
-            en: "When plans go wrong (e.g., train cancellation), I find it interesting rather than panicking.",
-            pos: { flow: 2, active: 1 }, neg: { order: 2, safe: 1 } 
-        },
-        { 
-            ja: "言葉が全く通じない場所で、ジェスチャーだけで交渉するのは（怖さよりも）むしろ楽しい。", 
-            en: "I find communicating with gestures in a place where I don't speak the language fun, not scary.",
-            pos: { active: 2, social: 1 }, neg: { safe: 2, solo: 1 } 
-        },
-        { 
-            ja: "もし予算が余ったら、高級ホテルの部屋代よりも、アクティビティや現地体験にお金を使いたい。", 
-            en: "If I have extra budget, I'd spend it on activities/experiences rather than a luxury hotel room.",
-            pos: { active: 2, mud: 0.5 }, neg: { clean: 2, safe: 0.5 } 
-        },
-        { 
-            ja: "丸一日誰とも話さず、ネットも繋がらない大自然の中で一人きり。それは自分にとって「至福の時間」だ。", 
-            en: "Being alone in nature all day with no internet or conversation is pure bliss for me.",
-            pos: { solo: 2, mud: 1 }, neg: { social: 2, safe: 1 } 
-        },
-        { 
-            ja: "見たことのない「謎の屋台料理（衛生面は怪しい）」があったら、迷わず挑戦して食べる。", 
-            en: "I would try mysterious street food (even if hygiene looks dubious) without hesitation.",
-            pos: { mud: 2, active: 1 }, neg: { clean: 2, safe: 1 } 
-        },
-        { 
-            ja: "旅の目的は「癒やし」よりも「価値観を壊されるような刺激」であるべきだ。", 
-            en: "The purpose of travel should be 'culture shock' and stimulation, not just relaxation.",
-            pos: { active: 2, flow: 1 }, neg: { safe: 2, order: 1 } 
-        },
-        { 
-            ja: "一緒に行くなら、自分に合わせてくれる人より、振り回してでも新しい世界を見せてくれる人がいい。", 
-            en: "I'd rather travel with someone who drags me into new worlds than someone who just follows me.",
-            pos: { flow: 2, social: 1 }, neg: { order: 2, solo: 1 } 
-        },
-        { 
-            ja: "荷造りでは「もしも」を考えて、あれこれ荷物を持っていく方だ（心配性である）。", 
-            en: "I tend to overpack because I worry about 'what if' scenarios.",
-            pos: { order: 2, safe: 1 }, neg: { flow: 2, mud: 1 } 
-        },
-        { 
-            ja: "毎朝の起床時間やルーティンは、旅先でも崩さずに守りたい。", 
-            en: "I want to keep my morning routine and wake-up time even when traveling.",
-            pos: { order: 2, clean: 0.5 }, neg: { flow: 2, active: 0.5 } 
-        }
+        { ja: "絶景のためなら、シャワーのない不衛生な宿でも我慢できる。", en: "I can endure poor hygiene for a great view.", pos: { mud: 2, active: 1 }, neg: { clean: 2, safe: 1 } },
+        { ja: "スケジュールは決めず、その場の気分で動きたい。", en: "I prefer spontaneity over planning.", pos: { flow: 2, safe: 0.5 }, neg: { order: 2, active: 0.5 } },
+        { ja: "安全なリゾートより、少し危険な路地裏にワクワクする。", en: "Gritty alleys excite me more than safe resorts.", pos: { active: 2, mud: 1 }, neg: { safe: 2, clean: 1 } },
+        { ja: "食事は個室よりも、現地の人と相席になるような店がいい。", en: "I prefer lively local eateries over private dining.", pos: { social: 2, mud: 0.5 }, neg: { solo: 2, clean: 0.5 } },
+        { ja: "トラブル（電車遅延など）も「面白い展開」だと楽しめる。", en: "Travel troubles are interesting twists, not panic.", pos: { flow: 2, active: 1 }, neg: { order: 2, safe: 1 } },
+        { ja: "言葉が通じない場所でのジェスチャー交渉は楽しい。", en: "Communicating with gestures is fun.", pos: { active: 2, social: 1 }, neg: { safe: 2, solo: 1 } },
+        { ja: "予算があれば、高級ホテルよりアクティビティに使いたい。", en: "I spend extra budget on activities, not hotels.", pos: { active: 2, mud: 0.5 }, neg: { clean: 2, safe: 0.5 } },
+        { ja: "誰とも話さず大自然で一人きり。それは至福の時間だ。", en: "Being alone in nature is bliss.", pos: { solo: 2, mud: 1 }, neg: { social: 2, safe: 1 } },
+        { ja: "見たことのない謎の屋台料理も、迷わず食べる。", en: "I try mysterious street food without hesitation.", pos: { mud: 2, active: 1 }, neg: { clean: 2, safe: 1 } },
+        { ja: "旅の目的は「癒やし」より「価値観を壊す刺激」だ。", en: "Travel is for culture shock, not relaxation.", pos: { active: 2, flow: 1 }, neg: { safe: 2, order: 1 } },
+        { ja: "自分に合わせてくれる人より、振り回してくる人がいい。", en: "I prefer crazy travel companions over passive ones.", pos: { flow: 2, social: 1 }, neg: { order: 2, solo: 1 } },
+        { ja: "荷造りは「もしも」を考えて多くなる方だ。", en: "I overpack for 'what if' scenarios.", pos: { order: 2, safe: 1 }, neg: { flow: 2, mud: 1 } },
+        { ja: "毎朝のルーティンは旅先でも守りたい。", en: "I keep my morning routine even when traveling.", pos: { order: 2, clean: 0.5 }, neg: { flow: 2, active: 0.5 } }
     ];
-
     const optionsData = [
         { ja: "完全にそう思う", en: "Strongly Agree", weight: 1.0, type: "pos" },
         { ja: "ややそう思う", en: "Agree", weight: 0.5, type: "pos" },
@@ -489,49 +338,32 @@
         { ja: "全くそう思わない", en: "Strongly Disagree", weight: 1.0, type: "neg" }
     ];
 
-    // === Logic ===
     let currentQIndex = 0;
-    let scores = { mud: 0, clean: 0, active: 0, safe: 0, social: 0, solo: 0, flow: 0, order: 0 };
-    let finalId = "";
+    let userAnswers = new Array(questions.length).fill(null);
 
     function toggleLanguage() {
         currentLang = currentLang === 'ja' ? 'en' : 'ja';
         document.getElementById('lang-btn').innerText = currentLang === 'ja' ? "🇯🇵 JP / 🇺🇸 EN" : "🇺🇸 EN / 🇯🇵 JP";
         updateUIText();
-        
-        // 画面の状態に合わせて再描画
-        if (!document.getElementById('start-screen').classList.contains('hidden')) {
-            // Start Screen
-        } else if (!document.getElementById('quiz-screen').classList.contains('hidden')) {
-            renderQuestion();
-        } else if (!document.getElementById('pre-result-screen').classList.contains('hidden')) {
-            // Pre-Result Screen
-        } else {
-            showResults(); 
-        }
     }
-
+    
     function updateUIText() {
         const t = translations[currentLang];
         document.getElementById('start-title').innerText = t.title;
         document.getElementById('start-subtitle').innerHTML = t.subtitle;
         document.getElementById('start-btn-text').innerText = t.startBtn;
-        document.getElementById('share-btn-text').innerText = t.shareBtn;
-        document.getElementById('discord-btn-text').innerText = t.discordBtn;
-        document.getElementById('discord-msg-text').innerText = t.discordMsg;
+        document.getElementById('btn-next').innerText = t.btnNext;
+        document.getElementById('btn-back').innerText = t.btnBack;
         document.getElementById('label-rec').innerText = t.labelRec;
-        document.getElementById('label-item').innerText = t.labelItem;
+        document.getElementById('label-ng').innerText = t.labelNg;
         document.getElementById('label-match').innerText = t.labelMatch;
-        document.getElementById('text-match-desc').innerText = t.textMatchDesc;
-        document.getElementById('label-score').innerText = t.labelScore;
-        document.getElementById('btn-top').innerText = t.btnTop;
-        
-        // Pre-Result Screen Texts
         document.getElementById('pre-title').innerText = t.preTitle;
         document.getElementById('pre-subtitle').innerHTML = t.preSubtitle;
-        document.getElementById('mbti-label-text').innerText = t.mbtiLabel;
         document.getElementById('show-result-btn-text').innerText = t.showResultBtn;
-        
+        document.getElementById('btn-top').innerText = t.btnTop;
+        document.getElementById('btn-details').innerText = t.btnDetails;
+        document.getElementById('feedback-msg').innerHTML = t.feedbackMsg;
+        document.getElementById('feedback-btn').innerText = t.feedbackBtn;
         document.getElementById('axis-clean').innerText = t.axes.clean;
         document.getElementById('axis-mud').innerText = t.axes.mud;
         document.getElementById('axis-safe').innerText = t.axes.safe;
@@ -540,10 +372,21 @@
         document.getElementById('axis-social').innerText = t.axes.social;
         document.getElementById('axis-order').innerText = t.axes.order;
         document.getElementById('axis-flow').innerText = t.axes.flow;
-        
-        // Feedback
-        document.getElementById('feedback-msg').innerHTML = t.feedbackMsg;
-        document.getElementById('feedback-btn').innerText = t.feedbackBtn;
+
+        if (!document.getElementById('quiz-screen').classList.contains('hidden')) renderQuestion();
+        else if (!document.getElementById('result-screen').classList.contains('hidden')) {
+            const kanji = document.getElementById('result-kanji').innerText.replace(/[【】]/g, '');
+            if(resultData[kanji]) {
+                const data = resultData[kanji][currentLang];
+                document.getElementById('result-title').innerText = data.title;
+                document.getElementById('result-desc-text').innerText = data.desc;
+                document.getElementById('result-rec').innerText = data.rec;
+                document.getElementById('result-match').innerText = `【${data.match}】`;
+                document.getElementById('match-reason-text').innerText = data.matchReason;
+                document.getElementById('result-ng-place').innerText = data.ng;
+                document.getElementById('result-ng-reason').innerText = data.ngReason;
+            }
+        }
     }
 
     function startQuiz() {
@@ -555,110 +398,71 @@
     function renderQuestion() {
         const q = questions[currentQIndex];
         document.getElementById('question-text').innerText = `Q${currentQIndex + 1}. ${q[currentLang]}`;
-        const pct = ((currentQIndex) / questions.length) * 100;
+        const pct = (currentQIndex / questions.length) * 100;
         document.getElementById('progress').style.width = `${pct}%`;
-        
         const container = document.getElementById('options-container');
         container.innerHTML = '';
-        optionsData.forEach(opt => {
-            const btn = document.createElement('button');
-            btn.innerText = opt[currentLang];
-            btn.onclick = () => handleAnswer(opt, q);
-            container.appendChild(btn);
+        optionsData.forEach((opt, idx) => {
+            const label = document.createElement('label'); label.className = 'option-label';
+            if (userAnswers[currentQIndex] === idx) label.classList.add('selected');
+            const radio = document.createElement('input'); radio.type = 'radio'; radio.name = 'q-option'; radio.className = 'option-radio'; radio.value = idx; radio.checked = (userAnswers[currentQIndex] === idx);
+            radio.onclick = () => { userAnswers[currentQIndex] = idx; renderQuestion(); };
+            const span = document.createElement('span'); span.innerText = opt[currentLang];
+            label.appendChild(radio); label.appendChild(span); container.appendChild(label);
         });
+        document.getElementById('btn-back').style.visibility = (currentQIndex === 0) ? 'hidden' : 'visible';
+        document.getElementById('btn-next').disabled = (userAnswers[currentQIndex] === null);
     }
 
-    function handleAnswer(option, question) {
-        // スコア加算
-        if (option.type === 'pos') { for (const [key, val] of Object.entries(question.pos)) scores[key] += val * option.weight; }
-        else if (option.type === 'neg') { for (const [key, val] of Object.entries(question.neg)) scores[key] += val * option.weight; }
-        
+    function nextQuestion() {
         currentQIndex++;
-        
-        // 最後の質問が終わったら、プレリザルト画面へ
-        if (currentQIndex < questions.length) {
-            renderQuestion();
-        } else {
-            showPreResultScreen();
+        if (currentQIndex < questions.length) renderQuestion();
+        else {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('pre-result-screen').classList.remove('hidden');
         }
     }
+    function prevQuestion() { if (currentQIndex > 0) { currentQIndex--; renderQuestion(); } }
 
-    function showPreResultScreen() {
-        document.getElementById('quiz-screen').classList.add('hidden');
-        document.getElementById('pre-result-screen').classList.remove('hidden');
+    function toggleDetails() {
+        const content = document.getElementById('details-section');
+        content.classList.toggle('open');
+        const t = translations[currentLang];
+        document.getElementById('btn-details').innerText = content.classList.contains('open') ? (currentLang === 'ja' ? '▲ 詳細を閉じる' : '▲ Close Details') : t.btnDetails;
     }
 
     function calcAndShowResults() {
-        // MBTIボーナスの適用
+        let scores = { mud: 0, clean: 0, active: 0, safe: 0, social: 0, solo: 0, flow: 0, order: 0 };
+        userAnswers.forEach((optIdx, qIdx) => {
+            const q = questions[qIdx]; const opt = optionsData[optIdx];
+            if (opt.type === 'pos') { for (const [k, v] of Object.entries(q.pos)) scores[k] += v * opt.weight; }
+            else if (opt.type === 'neg') { for (const [k, v] of Object.entries(q.neg)) scores[k] += v * opt.weight; }
+        });
         const mbti = document.getElementById('mbti-select').value;
         if (mbti && mbti.length === 4) {
-            // E vs I
-            if (mbti[0] === 'E') scores.social += 2;
-            else if (mbti[0] === 'I') scores.solo += 2;
-            
-            // S vs N
-            if (mbti[1] === 'S') scores.clean += 2;
-            else if (mbti[1] === 'N') scores.mud += 2;
-            
-            // J vs P
-            if (mbti[3] === 'J') scores.order += 2;
-            else if (mbti[3] === 'P') scores.flow += 2;
+            if (mbti[0] === 'E') scores.social += 2; else if (mbti[0] === 'I') scores.solo += 2;
+            if (mbti[1] === 'S') scores.clean += 2; else if (mbti[1] === 'N') scores.mud += 2;
+            if (mbti[3] === 'J') scores.order += 2; else if (mbti[3] === 'P') scores.flow += 2;
         }
+        const axis1 = scores.mud - scores.clean; const axis2 = scores.active - scores.safe; const axis3 = scores.social - scores.solo; const axis4 = scores.flow - scores.order;
+        let finalId = "";
+        finalId += axis1 > 0 ? "泥" : "浄"; finalId += axis2 > 0 ? "攻" : "安"; finalId += axis3 > 0 ? "共" : "孤"; finalId += axis4 > 0 ? "遊" : "律";
 
         document.getElementById('pre-result-screen').classList.add('hidden');
-        showResults();
-    }
-
-    function showResults() {
         document.getElementById('result-screen').classList.remove('hidden');
 
-        const axis1 = scores.mud - scores.clean;
-        const axis2 = scores.active - scores.safe;
-        const axis3 = scores.social - scores.solo;
-        const axis4 = scores.flow - scores.order;
-        
-        if (!finalId) { 
-            finalId = "";
-            finalId += axis1 > 0 ? "泥" : "浄";
-            finalId += axis2 > 0 ? "攻" : "安";
-            finalId += axis3 > 0 ? "共" : "孤";
-            finalId += axis4 > 0 ? "遊" : "律";
-        }
-
-        const t = translations[currentLang];
         const data = resultData[finalId][currentLang];
-
         document.getElementById('result-kanji').innerText = `【${finalId}】`;
         document.getElementById('result-title').innerText = data.title;
         document.getElementById('result-desc-text').innerText = data.desc;
         document.getElementById('result-rec').innerText = data.rec;
-        document.getElementById('result-item').innerText = data.item;
-        
-        document.getElementById('result-match').innerText = `Best Match: 【${data.match}】`;
-        
-        const rareBanner = document.getElementById('rare-banner');
-        rareBanner.classList.add('hidden'); 
-        rareBanner.innerHTML = '';
-        
-        if (axis1 >= 6) {
-            rareBanner.innerHTML = `<div><span class="rare-star">★★★★★</span> ${t.mudName} <span class="rare-star">★★★★★</span></div><div class="rare-title">${t.rareMud}</div>`;
-            rareBanner.classList.remove('hidden');
-        } else if (axis1 <= -7) {
-            rareBanner.innerHTML = `<div><span class="rare-star">★★★★★</span> ${t.cleanName} <span class="rare-star">★★★★★</span></div><div class="rare-title">${t.rareClean}</div>`;
-            rareBanner.classList.remove('hidden');
-        }
-
-        const adviceBox = document.getElementById('neutral-advice');
-        adviceBox.style.display = 'none';
-        if (Math.abs(axis1) <= 4) {
-             const opposite = axis1 > 0 ? t.cleanName : t.mudName;
-             adviceBox.innerHTML = t.neutralAdvice.replace('$1', opposite);
-             adviceBox.style.display = 'block';
-        }
-
+        document.getElementById('result-match').innerText = `【${data.match}】`;
+        document.getElementById('match-reason-text').innerText = data.matchReason;
+        document.getElementById('result-ng-place').innerText = data.ng;
+        document.getElementById('result-ng-reason').innerText = data.ngReason;
         document.getElementById('result-image').src = `./images/${finalId}.png`;
-
-        const maxScore = 15; 
+        
+        const maxScore = 15;
         const setDot = (elementId, netScore) => {
             let val = Math.max(-maxScore, Math.min(maxScore, netScore));
             let percent = ((val + maxScore) / (maxScore * 2)) * 100;
@@ -666,32 +470,6 @@
             setTimeout(() => { document.getElementById(elementId).style.left = `${percent}%`; }, 100);
         };
         setDot('dot-1', axis1); setDot('dot-2', axis2); setDot('dot-3', axis3); setDot('dot-4', axis4);
-    }
-
-    function shareOnX() {
-        const t = translations[currentLang];
-        const data = resultData[finalId][currentLang];
-        
-        let rareText = "";
-        const axis1 = scores.mud - scores.clean;
-        if (axis1 >= 6) rareText = `【${t.rareMud}】\n`;
-        else if (axis1 <= -7) rareText = `【${t.rareClean}】\n`;
-
-        const text = `${rareText}${currentLang === 'ja' ? '私のTravel IDは' : 'My Travel ID is'}【${finalId}】\n${data.title}\n#TravelID\n`;
-        const url = window.location.href;
-        const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-        window.open(shareUrl, '_blank');
-    }
-
-    function copyForDiscord() {
-        const t = translations[currentLang];
-        const data = resultData[finalId][currentLang];
-        const text = `${currentLang === 'ja' ? '私のTravel IDは' : 'My Travel ID is'}【${finalId}】\n${data.title}\n@kitsukuu. \n${window.location.href}`;
-        navigator.clipboard.writeText(text).then(function() {
-            alert(currentLang === 'ja' ? "コピーしました！Discordに貼り付けてね！" : "Copied! Paste it to Discord!");
-        }, function(err) {
-            alert("Copy failed.");
-        });
     }
 </script>
 </body>
