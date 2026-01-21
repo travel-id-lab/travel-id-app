@@ -143,6 +143,21 @@
         .hidden { display: none; }
         .fade-in { animation: fadeIn 0.6s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Feedback Section */
+        .feedback-area { margin-top: 40px; border-top: 1px dashed #e2e8f0; padding-top: 20px; }
+        .feedback-link {
+            display: inline-block;
+            background: #fff; color: #64748b;
+            border: 1px solid #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .feedback-link:hover { background: #f1f5f9; color: var(--primary); border-color: var(--primary); }
     </style>
 </head>
 <body>
@@ -260,7 +275,17 @@
                 <div class="bar-bg"><div class="dot" id="dot-4"></div></div>
             </div>
         </div>
+
         <button onclick="location.reload()" style="margin-top: 30px; width: 100%; background: #1e293b; color: white; border: none;" id="btn-top">トップに戻る</button>
+
+        <div class="feedback-area">
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;" id="feedback-msg">
+                開発者の励みになります！<br>バグ報告・改善案はこちら（匿名）
+            </p>
+            <a href="https://forms.gle/B5zNBkCAQKGs6A7c8" target="_blank" class="feedback-link" id="feedback-btn">
+                📝 フィードバックを送る
+            </a>
+        </div>
     </div>
 </div>
 
@@ -289,7 +314,9 @@
             preTitle: "診断完了！",
             preSubtitle: "最後の仕上げです。<br>MBTI（16タイプ診断）の結果を追加すると、より高精度な分析ができます。",
             mbtiLabel: "MBTIを選択 (任意):",
-            showResultBtn: "結果を見る"
+            showResultBtn: "結果を見る",
+            feedbackMsg: "開発者の励みになります！<br>バグ報告・改善案はこちら（匿名）",
+            feedbackBtn: "📝 フィードバックを送る"
         },
         en: {
             title: "Travel ID Diagnosis",
@@ -311,7 +338,9 @@
             preTitle: "Diagnosis Complete!",
             preSubtitle: "Final step.<br>Adding your MBTI (16 personalities) result will make the analysis more accurate.",
             mbtiLabel: "Select MBTI (Optional):",
-            showResultBtn: "See Results"
+            showResultBtn: "See Results",
+            feedbackMsg: "Found a bug or have feedback?<br>Send anonymous feedback here!",
+            feedbackBtn: "📝 Send Feedback"
         }
     };
 
@@ -511,6 +540,10 @@
         document.getElementById('axis-social').innerText = t.axes.social;
         document.getElementById('axis-order').innerText = t.axes.order;
         document.getElementById('axis-flow').innerText = t.axes.flow;
+        
+        // Feedback
+        document.getElementById('feedback-msg').innerHTML = t.feedbackMsg;
+        document.getElementById('feedback-btn').innerText = t.feedbackBtn;
     }
 
     function startQuiz() {
@@ -566,8 +599,6 @@
             // S vs N
             if (mbti[1] === 'S') scores.clean += 2;
             else if (mbti[1] === 'N') scores.mud += 2;
-            
-            // T vs F (今回は簡単のためスコアへの影響は少なめに、または無視)
             
             // J vs P
             if (mbti[3] === 'J') scores.order += 2;
@@ -627,7 +658,7 @@
 
         document.getElementById('result-image').src = `./images/${finalId}.png`;
 
-        const maxScore = 15; // MBTIボーナス込みで少し超える可能性あるが許容範囲
+        const maxScore = 15; 
         const setDot = (elementId, netScore) => {
             let val = Math.max(-maxScore, Math.min(maxScore, netScore));
             let percent = ((val + maxScore) / (maxScore * 2)) * 100;
