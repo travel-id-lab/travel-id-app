@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel ID - 最終完成版</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", YuGothic, "ヒラギノ角ゴ ProN W3", Meiryo, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            background: var(--card);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        h1 { font-size: 24px; margin-bottom: 10px; font-weight: 800; }
+        h2 { font-size: 16px; color: #64748b; margin-bottom: 30px; font-weight: normal; }
+        
+        .question-text {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            min-height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-group { display: flex; flex-direction: column; gap: 12px; }
+
+        button {
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            background: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #f1f5f9;
+            border-color: var(--primary);
+        }
+
+        button.start-btn {
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: white;
+            border: none;
+            font-size: 20px;
+            padding: 20px 40px;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        button.start-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        /* Result & Image Styles */
+        .image-container {
+            width: 100%; height: 250px; border-radius: 16px; overflow: hidden; margin-bottom: 20px;
+            background-color: #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .result-img { width: 100%; height: 100%; object-fit: cover; }
+        .result-type-title { font-size: 18px; font-weight: bold; color: var(--primary); margin-bottom: 5px; }
+        .result-id {
+            font-size: 42px; font-weight: 900; letter-spacing: 4px; margin: 0 0 20px 0;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.2;
+        }
+        .result-description { text-align: left; font-size: 15px; color: #475569; background: #f8fafc; padding: 20px; border-radius: 16px; margin-bottom: 30px; }
+
+        /* Spectrum Styles */
+        .spectrum-container { margin-top: 30px; text-align: left; padding-top: 20px; border-top: 2px dashed #e2e8f0;}
+        .axis-row { margin-bottom: 25px; }
+        .axis-labels { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 8px; color: #94a3b8; }
+        .bar-bg { height: 10px; background: #e2e8f0; border-radius: 5px; position: relative; }
+        .dot {
+            width: 18px; height: 18px; background: white; border: 4px solid var(--primary);
+            border-radius: 50%; position: absolute; top: 50%;
+            transform: translate(-50%, -50%); transition: left 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            left: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .progress-bar { height: 6px; background: #e2e8f0; margin-bottom: 20px; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
+        .hidden { display: none; }
+        .fade-in { animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <div id="start-screen">
+        <h1>Travel ID 診断</h1>
+        <h2>あなたの旅のスタイルを<br>13問で解明します。</h2>
+        <div style="margin: 20px auto; width: 120px; height: 120px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px;">✈️</div>
+        <button class="start-btn" onclick="startQuiz()">診断を始める</button>
+        <p style="font-size: 12px; color: #94a3b8; margin-top: 30px;">Final Version</p>
+    </div>
+
+    <div id="quiz-screen" class="hidden">
+        <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+        <div class="question-text" id="question-text">質問読み込み中...</div>
+        <div class="btn-group" id="options-container"></div>
+    </div>
+
+    <div id="result-screen" class="hidden fade-in">
+        <div class="image-container">
+            <img id="result-image" class="result-img" src="" alt="Result Image">
+        </div>
+        
+        <div class="result-type-title" id="result-title"></div>
+        <div class="result-id" id="result-kanji"></div>
+        <div class="result-description" id="result-desc-text"></div>
+
+        <div class="spectrum-container">
+            <p style="font-size: 14px; font-weight: bold; margin-bottom: 15px;">詳細スコア分析</p>
+            <div class="axis-row">
+                <div class="axis-labels"><span>清潔・快適 (浄)</span><span>混沌・ディープ (泥)</span></div>
+                <div class="bar-bg"><div class="dot" id="dot-1"></div></div>
+            </div>
+            <div class="axis-row">
+                <div class="axis-labels"><span>安全・リラックス (安)</span><span>挑戦・アクティブ (攻)</span></div>
+                <div class="bar-bg"><div class="dot" id="dot-2"></div></div>
+            </div>
+            <div class="axis-row">
+                <div class="axis-labels"><span>ソロ・内省 (孤)</span><span>交流・ワイワイ (共)</span></div>
+                <div class="bar-bg"><div class="dot" id="dot-3"></div></div>
+            </div>
+            <div class="axis-row">
+                <div class="axis-labels"><span>規律・計画的 (律)</span><span>柔軟・行き当たりばったり (遊)</span></div>
+                <div class="bar-bg"><div class="dot" id="dot-4"></div></div>
+            </div>
+        </div>
+        <button onclick="location.reload()" style="margin-top: 30px; width: 100%; background: #1e293b; color: white; border: none;">トップに戻る</button>
+    </div>
+</div>
+
+<script>
+    // 1. Result Data (DataBase)
+    const resultData = {
+        "泥攻孤遊": { title: "孤高のハードコア冒険家", desc: "最も過酷な環境を愛するタイプ。計画は一切立てず、その日の直感と出会いに身を任せる。快適さよりも「生の実感」を求め、誰も行かない場所へ一人で踏み込むことに至上の喜びを感じる。" },
+        "泥攻孤律": { title: "ストイックな探検家", desc: "過酷な目標（例：未踏峰制覇）のために、綿密な準備とトレーニングを欠かさない。楽しみのための旅ではなく「ミッション」としての旅を好む。孤独には強いが、想定外のトラブルには脆い一面も。" },
+        "泥攻共遊": { title: "お祭り騒ぎのサバイバー", desc: "「ヤバい場所」で仲間と大騒ぎするのが大好き。トラブルすらも笑い話に変えるポジティブさを持つ。衛生観念は低いが、その場のノリと体力で全てを乗り切るエネルギッシュなタイプ。" },
+        "泥攻共律": { title: "過酷ツアーの熱血リーダー", desc: "ハードな旅程（例：ジャングル縦走）を企画し、仲間を率いる隊長タイプ。リスク管理はしっかり行うが、求める体験のレベルが高すぎるため、ついて来られる人は限られるかも。" },
+        "泥安孤遊": { title: "ディープな街の放浪詩人", desc: "観光地ではない、現地の生活感が溢れる（時に不衛生な）路地裏を好む。特別な何かをするわけではなく、ただそこに「居る」ことを楽しむ。社会的な交流は避け、自分の世界に浸る。" },
+        "泥安孤律": { title: "マニアックな研究者", desc: "特定のニッチな対象（例：辺境の遺跡、奇妙な食文化）を研究するために旅をする。行動範囲は狭くリスクは取らないが、対象への没入度は凄まじい。旅のしおりは論文レベル。" },
+        "泥安共遊": { title: "下町の愛されキャラ", desc: "安宿のドミトリーや地元の食堂で、いつの間にか現地の人と仲良くなっている。計画性がなく、お金もないが、愛嬌とコミュニケーション能力で衣食住を何とかしてしまう天才。" },
+        "泥安共律": { title: "激安ツアーのしっかり者", desc: "「いかに安く、ディープな体験をするか」に命をかける節約旅行家。不便さは許容するが、無駄な出費は許さない。グループ旅行では会計係として重宝される。" },
+        "浄攻孤遊": { title: "スタイリッシュな自由人", desc: "清潔で洗練された空間を好むが、行動は自由奔放。最新のデザインホテルに泊まりつつ、昼間は気の向くままに街を散策する。自分のセンスに絶対の自信を持つソロトラベラー。" },
+        "浄攻孤律": { title: "完璧主義の絶景ハンター", desc: "最高の「一枚」を撮るためなら、高級機材を担いで早朝から行動する。ただし、宿泊先や移動手段は快適で確実なものを手配済み。効率的に目的を達成するプロフェッショナル。" },
+        "浄攻共遊": { title: "キラキラ女子旅のカリスマ", desc: "最新のトレンドスポットや映えるカフェを巡るのが大好き。計画は「その時のテンション」で変わるが、清潔感とオシャレさだけは譲れない。仲間との楽しい時間をSNSで共有するのが生きがい。" },
+        "浄攻共律": { title: "アクティブ・リゾートの幹事長", desc: "高級リゾートでのゴルフやダイビングなど、快適かつ活動的な旅を計画する。全員が楽しめるように完璧なスケジュールを組み、レストラン予約も抜かりない。頼れるリーダー。" },
+        "浄安孤遊": { title: "優雅なホテルステイ愛好家", desc: "旅の目的は「何もしないこと」。最高級のホテルの部屋やラウンジで、一日中本を読んだり景色を眺めたりして過ごす。誰にも邪魔されない、静で贅沢な時間を愛する。" },
+        "浄安孤律": { title: "慎重派の癒やし求道者", desc: "絶対に失敗しない、安全で清潔な旅しかしない。評判の良い温泉旅館やリトリート施設を早期に予約し、決まったルーティンで心身を癒やす。冒険は一切しない。" },
+        "浄安共遊": { title: "のんびり温泉旅行グループ", desc: "気の合う仲間や家族と、清潔な宿でのんびり過ごすのが好き。細かい計画は立てず、「とりあえず温泉入って美味しいもの食べよう」というゆるいスタンスで楽しむ平和主義者。" },
+        "浄安共律": { title: "王道のパッケージツアー客", desc: "大手旅行会社の添乗員付きツアーを好む。移動、食事、宿泊、全てがお膳立てされた安全・安心・清潔な旅こそが至高。自分で調べる手間を嫌い、プロに任せたいタイプ。" }
+    };
+
+    // 2. Updated Question List (Unified Agree/Disagree style)
+    const questions = [
+        { 
+            text: "絶景や一生に一度の体験のためなら、シャワーがなく衛生状態が悪い宿でも数日は我慢できる。", 
+            pos: { mud: 2, active: 1 }, neg: { clean: 2, safe: 1 } 
+        },
+        { 
+            text: "旅行のスケジュールは、分刻みで決めるよりも「その場の気分」で決める余白を多く残したい。", 
+            pos: { flow: 2, safe: 0.5 }, neg: { order: 2, active: 0.5 } 
+        },
+        { 
+            text: "安全なリゾート地よりも、少し危険な匂いのする路地裏や、地図にない場所の方にワクワクする。", 
+            pos: { active: 2, mud: 1 }, neg: { safe: 2, clean: 1 } 
+        },
+        { 
+            text: "旅先での食事は、個室でゆっくりよりも、現地の人と相席になるような賑やかな場所が好きだ。", 
+            pos: { social: 2, mud: 0.5 }, neg: { solo: 2, clean: 0.5 } 
+        },
+        { 
+            text: "電車の運休などで予定が完全に崩れた時、パニックになるよりも「面白い展開になった」と感じる。", 
+            pos: { flow: 2, active: 1 }, neg: { order: 2, safe: 1 }
+        },
+        { 
+            text: "言葉が全く通じない場所で、ジェスチャーだけで交渉するのは（怖さよりも）むしろ楽しい。", 
+            pos: { active: 2, social: 1 }, neg: { safe: 2, solo: 1 }
+        },
+        { 
+            text: "もし予算が余ったら、高級ホテルの部屋代よりも、アクティビティや現地体験にお金を使いたい。", 
+            pos: { active: 2, mud: 0.5 }, neg: { clean: 2, safe: 0.5 }
+        },
+        { 
+            text: "丸一日誰とも話さず、ネットも繋がらない大自然の中で一人きり。それは自分にとって「至福の時間」だ。", 
+            pos: { solo: 2, mud: 1 }, neg: { social: 2, safe: 1 }
+        },
+        { 
+            text: "見たことのない「謎の屋台料理（衛生面は怪しい）」があったら、迷わず挑戦して食べる。", 
+            pos: { mud: 2, active: 1 }, neg: { clean: 2, safe: 1 }
+        },
+        { 
+            text: "旅の目的は「癒やし」よりも「価値観を壊されるような刺激」であるべきだ。", 
+            pos: { active: 2, flow: 1 }, neg: { safe: 2, order: 1 } 
+        },
+        { 
+            text: "一緒に行くなら、自分に合わせてくれる人より、振り回してでも新しい世界を見せてくれる人がいい。", 
+            pos: { flow: 2, social: 1 }, neg: { order: 2, solo: 1 } 
+        },
+        { 
+            text: "荷造りでは「もしも」を考えて、あれこれ荷物を持っていく方だ（心配性である）。", 
+            pos: { order: 2, safe: 1 }, neg: { flow: 2, mud: 1 }
+        },
+        { 
+            text: "毎朝の起床時間やルーティンは、旅先でも崩さずに守りたい。", 
+            pos: { order: 2, clean: 0.5 }, neg: { flow: 2, active: 0.5 } 
+        }
+    ];
+
+    // 3. Unified Options
+    const options = [
+        { label: "完全にそう思う", weight: 1.0, type: "pos" },
+        { label: "ややそう思う", weight: 0.5, type: "pos" },
+        { label: "どちらでもない", weight: 0, type: "neu" },
+        { label: "あまりそう思わない", weight: 0.5, type: "neg" },
+        { label: "全くそう思わない", weight: 1.0, type: "neg" }
+    ];
+
+    // === State & Logic ===
+    let currentQIndex = 0;
+    let scores = { mud: 0, clean: 0, active: 0, safe: 0, social: 0, solo: 0, flow: 0, order: 0 };
+
+    function startQuiz() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        const q = questions[currentQIndex];
+        document.getElementById('question-text').innerText = `Q${currentQIndex + 1}. ${q.text}`;
+        
+        const pct = ((currentQIndex) / questions.length) * 100;
+        document.getElementById('progress').style.width = `${pct}%`;
+        
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerText = opt.label;
+            btn.onclick = () => handleAnswer(opt, q);
+            container.appendChild(btn);
+        });
+    }
+
+    function handleAnswer(option, question) {
+        if (option.type === 'pos') { for (const [key, val] of Object.entries(question.pos)) scores[key] += val * option.weight; }
+        else if (option.type === 'neg') { for (const [key, val] of Object.entries(question.neg)) scores[key] += val * option.weight; }
+        
+        currentQIndex++;
+        if (currentQIndex < questions.length) renderQuestion(); else showResults();
+    }
+
+    function showResults() {
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+
+        const axis1 = scores.mud - scores.clean;
+        const axis2 = scores.active - scores.safe;
+        const axis3 = scores.social - scores.solo;
+        const axis4 = scores.flow - scores.order;
+        
+        let id = "";
+        id += axis1 > 0 ? "泥" : "浄";
+        id += axis2 > 0 ? "攻" : "安";
+        id += axis3 > 0 ? "共" : "孤";
+        id += axis4 > 0 ? "遊" : "律";
+
+        const data = resultData[id];
+        document.getElementById('result-kanji').innerText = `【${id}】`;
+        document.getElementById('result-title').innerText = data.title;
+        document.getElementById('result-desc-text').innerText = data.desc;
+        
+        // ★重要：ここでローカルの画像を読み込みます
+        document.getElementById('result-image').src = `./images/${id}.png`;
+
+        const maxScore = 15; 
+        const setDot = (elementId, netScore) => {
+            let val = Math.max(-maxScore, Math.min(maxScore, netScore));
+            let percent = ((val + maxScore) / (maxScore * 2)) * 100;
+            percent = Math.max(5, Math.min(95, percent));
+            setTimeout(() => { document.getElementById(elementId).style.left = `${percent}%`; }, 100);
+        };
+        setDot('dot-1', axis1); setDot('dot-2', axis2); setDot('dot-3', axis3); setDot('dot-4', axis4);
+    }
+</script>
+</body>
+</html>
