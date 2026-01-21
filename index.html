@@ -14,8 +14,14 @@
     </script>
 
     <meta property="og:title" content="Travel ID Diagnosis">
-    <meta property="og:description" content="Discover your true travel personality. / あなたの旅のスタイルを解明します。">
+    <meta property="og:description" content="Discover your true travel personality. / あなたの旅のスタイルを13問で解明します。">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="https://travel-id-lab.github.io/travel-id-app/">
+    <meta property="og:image" content="https://travel-id-lab.github.io/travel-id-app/images/泥攻孤遊.png">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://travel-id-lab.github.io/travel-id-app/images/泥攻孤遊.png">
+
     <style>
         :root {
             --primary: #3b82f6;
@@ -542,7 +548,7 @@
         document.getElementById('result-rec').innerText = data.rec;
         document.getElementById('result-item').innerText = data.item;
         
-        // ★修正ポイント： data.match を参照するように変更
+        // ★修正ポイント： undefined バグを修正
         document.getElementById('result-match').innerText = `Best Match: 【${data.match}】`;
         
         // レア演出
