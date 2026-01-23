@@ -8,7 +8,7 @@
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
@@ -17,97 +17,102 @@
             --primary: #111827; /* Dark Slate */
             --secondary: #6b7280; /* Gray */
             --accent: #2563eb; /* Blue */
-            --bg: #ffffff;
-            --border: #e5e7eb;
+            --bg: #f8fafc;
+            --border: #e2e8f0;
             /* Scale Colors */
-            --scale-5: #111827; /* Strong Agree */
-            --scale-4: #4b5563; /* Agree */
-            --scale-3: #9ca3af; /* Neutral */
-            --scale-2: #d1d5db; /* Disagree */
-            --scale-1: #f3f4f6; /* Strong Disagree */
+            --scale-5: #111827; --scale-4: #4b5563; --scale-3: #9ca3af; --scale-2: #d1d5db; --scale-1: #f3f4f6;
         }
-        body{font-family: 'Inter', sans-serif; background-color:#f3f4f6; color:var(--primary); margin:0; padding:20px; line-height:1.6;}
-        .container{background:var(--bg); width:100%; max-width:480px; margin:0 auto; padding:0; min-height:90vh; display:flex; flex-direction:column; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); border-radius: 16px; overflow:hidden;}
+        body{font-family: 'Inter', sans-serif; background-color:var(--bg); color:var(--primary); margin:0; padding:0; line-height:1.6;}
+        .container{background:#ffffff; width:100%; max-width:480px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; box-shadow: 0 0 20px rgba(0,0,0,0.05); position:relative;}
         
-        /* Typography & Layout */
-        .header { padding: 40px 24px; text-align: left; }
+        /* Language Toggle (Fixed Top Right) */
+        .lang-switch { 
+            position: absolute; top: 20px; right: 20px; 
+            font-size: 12px; font-weight: 800; color: var(--secondary); 
+            cursor: pointer; z-index: 9999; background: rgba(255,255,255,0.9);
+            padding: 5px 10px; border-radius: 20px; border: 1px solid var(--border);
+        }
+
+        /* Typography */
+        .header { padding: 60px 24px 40px; }
         .brand-tag { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); display:block; margin-bottom: 12px;}
-        h1 { font-size: 36px; font-weight: 900; margin: 0; letter-spacing: -1.5px; line-height: 1; color: var(--primary); }
-        .hero-sub { font-size: 16px; color: var(--secondary); margin-top: 16px; font-weight: 400; line-height: 1.5; }
+        h1 { font-size: 36px; font-weight: 900; margin: 0; letter-spacing: -1.5px; line-height: 1.1; color: var(--primary); }
+        .hero-sub { font-size: 15px; color: var(--secondary); margin-top: 16px; font-weight: 500; }
 
         /* Buttons */
         .btn-primary {
             background: var(--primary); color: white; border: none; font-size: 16px; padding: 18px; width: 100%; 
-            border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 30px;
+            border-radius: 12px; font-weight: 700; cursor: pointer; transition: transform 0.1s; margin-top: 30px;
             display: flex; justify-content: space-between; align-items: center;
         }
         .btn-primary:active { transform: scale(0.98); }
-        .btn-primary::after { content: "→"; font-weight: 800; opacity: 0.8; }
 
-        /* Quiz UI - 5 Scale */
-        #quiz-screen { padding: 30px 24px; }
-        .progress-track { height: 4px; background: #f1f5f9; margin-bottom: 30px; border-radius: 2px; }
+        /* Quiz UI */
+        #quiz-screen { padding: 80px 24px 40px; }
+        .progress-track { height: 6px; background: #f1f5f9; margin-bottom: 30px; border-radius: 3px; overflow:hidden;}
         .progress-bar { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
         .q-cat { font-size: 10px; font-weight: 800; color: var(--accent); letter-spacing: 1px; margin-bottom: 8px; display: block; text-transform: uppercase;}
-        .q-text { font-size: 20px; font-weight: 800; margin-bottom: 30px; min-height: 70px; line-height: 1.35; letter-spacing: -0.3px;}
+        .q-text { font-size: 20px; font-weight: 800; margin-bottom: 30px; min-height: 80px; line-height: 1.4; letter-spacing: -0.5px;}
         
-        /* 5-Option Styling */
         .opt-btn {
-            display: flex; align-items: center; justify-content: space-between;
-            width: 100%; padding: 14px 20px; margin-bottom: 8px;
-            border: 1px solid var(--border); border-radius: 10px;
+            display: flex; align-items: center; width: 100%; padding: 14px 16px; margin-bottom: 8px;
+            border: 1px solid var(--border); border-radius: 12px; background: white;
             text-align: left; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.1s;
         }
-        /* Gradient of intensity */
-        .opt-5 { background: var(--scale-5); color: white; border-color: var(--scale-5); }
-        .opt-4 { background: white; color: var(--primary); border-left: 5px solid var(--scale-5); }
-        .opt-3 { background: white; color: var(--secondary); border-left: 2px solid var(--scale-3); font-weight:500;}
-        .opt-2 { background: white; color: var(--secondary); border-left: 1px solid var(--scale-2); font-weight:500;}
-        .opt-1 { background: #f9fafb; color: #9ca3af; border: 1px solid transparent; font-weight:500;}
-
-        .opt-btn:active { transform: scale(0.99); opacity: 0.9; }
+        /* Visual Weight for Options */
+        .opt-5 { border-left: 6px solid var(--scale-5); }
+        .opt-4 { border-left: 4px solid var(--scale-4); }
+        .opt-3 { border-left: 2px solid var(--scale-3); color: var(--secondary); }
+        .opt-2 { border-left: 1px solid var(--scale-2); color: var(--secondary); }
+        .opt-1 { border-left: 1px solid var(--scale-1); color: #9ca3af; background: #f9fafb; }
+        .opt-btn:active { background: #f1f5f9; transform: scale(0.99); }
 
         /* Result Dashboard */
-        #result-screen { flex-grow: 1; display: flex; flex-direction: column; }
-        .res-header { padding: 24px; border-bottom: 1px solid var(--border); background: white;}
+        #result-screen { flex-grow: 1; display: flex; flex-direction: column; height: 100vh; }
+        .res-header { padding: 60px 24px 20px; background: white; border-bottom: 1px solid var(--border); flex-shrink: 0;}
         .id-label { font-size: 10px; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; }
-        .id-title { font-size: 28px; font-weight: 900; margin: 5px 0 8px; color: var(--primary); letter-spacing: -1px; }
+        .id-title { font-size: 28px; font-weight: 900; margin: 4px 0 8px; color: var(--primary); letter-spacing: -1px; line-height:1.2;}
         .id-desc { font-size: 13px; color: var(--secondary); line-height: 1.5; margin-bottom: 15px;}
         
-        .tribe-actions { display: flex; gap: 10px; margin-top: 10px; }
-        .tribe-btn { flex: 1; font-size: 11px; padding: 12px; border-radius: 6px; background: #f8fafc; color: var(--secondary); text-align: center; text-decoration: none; border: 1px solid var(--border); font-weight: 600; display:flex; align-items:center; justify-content:center; gap:5px;}
-        .tribe-btn:hover { background: #f1f5f9; color: var(--primary); }
+        /* Action Buttons Grid */
+        .tribe-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .tribe-btn { 
+            font-size: 11px; padding: 10px; border-radius: 8px; background: white; 
+            color: var(--primary); text-align: center; text-decoration: none; 
+            border: 1px solid var(--border); font-weight: 700; 
+            display:flex; align-items:center; justify-content:center; gap:6px;
+        }
+        .tribe-btn.discord { background: #5865F2; color: white; border:none; grid-column: span 2;}
+        .tribe-btn:hover { opacity: 0.9; }
 
-        /* Controls */
-        .controls { display: flex; padding: 10px 24px; gap: 8px; background: white; border-bottom: 1px solid var(--border);}
-        .ctrl-pill { padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 20px; cursor: pointer; background: #f1f5f9; color: var(--secondary); border: 1px solid transparent;}
+        /* Map Controls */
+        .controls { display: flex; padding: 10px 24px; gap: 8px; background: white; border-bottom: 1px solid var(--border); flex-shrink: 0;}
+        .ctrl-pill { padding: 6px 14px; font-size: 12px; font-weight: 700; border-radius: 20px; cursor: pointer; background: #f1f5f9; color: var(--secondary); }
         .ctrl-pill.active { background: var(--primary); color: white; }
-        .ctrl-share { margin-left: auto; background: white; border-color: var(--border); color: var(--primary); }
-
-        /* Map */
-        #map-container { flex-grow: 1; background: #e2e8f0; position: relative; z-index: 1; min-height: 400px;}
+        .ctrl-share { margin-left: auto; display:flex; gap:5px;}
+        
+        /* Map Area */
+        #map-container { flex-grow: 1; background: #e5e7eb; position: relative; z-index: 1; width: 100%; height: 100%; min-height: 300px;}
         #map { width: 100%; height: 100%; }
 
-        /* Floating Card */
+        /* Bottom Sheet */
         .spot-card {
             background: white; border-top: 1px solid var(--border); padding: 24px;
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.08); z-index: 100;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.1); z-index: 999; flex-shrink: 0;
         }
         .spot-h { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
-        .spot-n { font-size: 16px; font-weight: 700; margin: 0; }
-        .spot-d { font-size: 13px; color: var(--secondary); margin-bottom: 20px; }
+        .spot-n { font-size: 16px; font-weight: 800; margin: 0; }
+        .spot-d { font-size: 12px; color: var(--secondary); margin-bottom: 15px; }
         .actions { display: flex; gap: 10px; }
-        .act-btn { flex: 1; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; text-align: center; cursor: pointer; border: 1px solid var(--border); display: flex; justify-content: center; align-items: center; gap: 6px; text-decoration: none; color: var(--primary); transition:0.2s;}
+        .act-btn { flex: 1; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 700; text-align: center; cursor: pointer; border: 1px solid var(--border); display: flex; justify-content: center; align-items: center; gap: 6px; text-decoration: none; color: var(--primary); transition:0.2s;}
         .act-save.saved { background: #fdf2f8; color: #db2777; border-color: #fbcfe8; }
         .act-vibe { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* Utility */
         .hidden { display: none !important; }
-        .lang-switch { position: absolute; top: 20px; right: 24px; font-size: 11px; font-weight: 700; color: var(--secondary); cursor: pointer; z-index: 20;}
 
-        /* Leaflet Pins */
-        img.leaflet-marker-icon { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .pin-sys { filter: hue-rotate(230deg) saturate(0.8) brightness(0.8); } 
+        /* Pins */
+        img.leaflet-marker-icon { transition: all 0.3s; }
+        .pin-sys { filter: hue-rotate(230deg) saturate(0.8); } 
         .pin-sav { filter: hue-rotate(320deg) saturate(2); transform: scale(1.3) translateY(-10px); z-index: 1000 !important; }
     </style>
 </head>
@@ -121,12 +126,14 @@
         <h1 id="t-head">Decode Your<br>Travel DNA.</h1>
         <p class="hero-sub" id="t-sub">We don't match you by demographics.<br>We match you by values.</p>
         
-        <button class="btn-primary" onclick="startQuiz()" id="t-start">Analyze My Style</button>
+        <button class="btn-primary" onclick="startQuiz()">
+            <span id="t-start">Analyze My Style</span> <span>→</span>
+        </button>
         
-        <div style="margin-top:40px; border-top:1px solid #e5e7eb; padding-top:20px;">
+        <div style="margin-top:40px; border-top:1px solid #f1f5f9; padding-top:20px;">
             <p style="font-size:11px; color:#9ca3af; line-height:1.5;">
-                v25.0 (5-Scale Precision)<br>
-                Powered by Human Intelligence & Values.
+                v26.0 (Complete Fix)<br>
+                Powered by Human Intelligence.
             </p>
         </div>
     </div>
@@ -136,7 +143,7 @@
         <span class="q-cat" id="q-cat">CATEGORY</span>
         <div class="q-text" id="q-text">Loading...</div>
         <div id="options-box"></div>
-        <div style="margin-top:30px; text-align:center;">
+        <div style="margin-top:20px; text-align:center;">
             <span onclick="prevQ()" style="font-size:12px; color:#9ca3af; cursor:pointer; text-decoration:underline;">Back</span>
         </div>
     </div>
@@ -149,23 +156,31 @@
             <p class="id-desc" id="res-desc">Analysis complete.</p>
             
             <div class="tribe-actions">
-                <a href="https://forms.gle/5L7ndRzgPnh45Mor8" target="_blank" class="tribe-btn">
-                    <span>⚡</span> Submit a Hidden Spot
+                <a href="https://discord.gg/placeholder" target="_blank" class="tribe-btn discord">
+                    <span>💬</span> <span id="btn-discord">Join Tribe Discord</span>
                 </a>
+                <a href="https://forms.gle/5L7ndRzgPnh45Mor8" target="_blank" class="tribe-btn">
+                    <span>⚡</span> <span id="btn-submit">Submit Spot</span>
+                </a>
+                <div class="tribe-btn" onclick="shareTwitter()" style="cursor:pointer; background:black; color:white; border:none;">
+                    <span>𝕏</span> Share
+                </div>
             </div>
         </div>
 
         <div class="controls">
             <div class="ctrl-pill active" onclick="setMode('japan')" id="opt-japan">Japan</div>
             <div class="ctrl-pill" onclick="setMode('world')" id="opt-world">Global</div>
-            <div class="ctrl-pill ctrl-share" onclick="shareMap()">🔗 Share Map</div>
+            <div class="ctrl-share">
+                <div class="ctrl-pill" onclick="shareUrl()">🔗 Copy URL</div>
+            </div>
         </div>
 
         <div id="map-container"><div id="map"></div></div>
 
         <div class="spot-card">
-            <h3 class="spot-n" id="spot-name">Explore your world</h3>
-            <p class="spot-d" id="spot-desc">Select a pin to reveal spots curated for your DNA.</p>
+            <h3 class="spot-n" id="spot-name">Map Loading...</h3>
+            <p class="spot-d" id="spot-desc">Select a pin to reveal spots.</p>
             <div class="actions">
                 <button class="act-btn act-save" id="btn-save" onclick="toggleSave()">
                     <span id="icon-save">♡</span> <span id="txt-save">Save</span>
@@ -182,20 +197,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
 <script>
-    // --- CONFIGURATION ---
+    // --- 1. CONFIGURATION ---
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRrOI46FP-ueet2ZD0xKG0r1_xFng90_PDr1Z-sm6OB5xe3I8m0nx5Q5aNIVxvRVi1QLczBbv4pdnAv/pub?output=csv'; 
     
-    // --- STATE ---
+    // --- 2. STATE ---
     let lang = 'en'; 
     let mode = 'japan'; 
-    let finalId = "";
+    let finalId = ""; // e.g. "泥攻孤遊"
     let map = null;
     let markers = [];
     let dataCache = {};
     let saved = new Set();
     let curSpot = null;
 
-    // --- INIT ---
+    // --- 3. LOGIC INIT ---
     function init(){
         const urlParams = new URLSearchParams(window.location.search);
         const sharedId = urlParams.get('id');
@@ -203,13 +218,14 @@
         const localSaved = JSON.parse(localStorage.getItem('tid_saved') || '[]');
         saved = new Set(localSaved);
 
-        if(sharedId) {
-            finalId = sharedId;
-            fetchData(() => { showResultScreen(); });
-        } else {
-            fetchData();
-            updateUIText();
-        }
+        fetchData(() => {
+            if(sharedId) {
+                finalId = sharedId;
+                showResultScreen();
+            } else {
+                updateUIText();
+            }
+        });
     }
 
     function fetchData(callback){
@@ -218,7 +234,7 @@
             complete: res => {
                 res.data.forEach(r => {
                     if(r.id){
-                        const k = r.id.trim();
+                        const k = r.id.trim(); // "泥攻孤遊" etc.
                         if(!dataCache[k]) dataCache[k] = [];
                         dataCache[k].push({
                             uid: r.uid || Math.random().toString(), 
@@ -234,30 +250,33 @@
         });
     }
 
-    // --- TEXT & BRAND ---
+    // --- 4. BRAND & TEXT ---
     const T = {
         en: {
             head: "Decode Your\nTravel DNA.", sub: "We don't match you by demographics.\nWe match you by values.",
-            start: "Analyze My Style", save: "Save to Map", saved: "Saved", vibe: "View Vibe",
-            world: "Global", japan: "Domestic", share: "🔗 Share Map",
+            start: "Analyze My Style", save: "Save", saved: "Saved", vibe: "View Vibe",
+            world: "Global", japan: "Domestic", 
+            discord: "Join Tribe Discord", submit: "Submit Spot",
             types: {
                 "泥攻孤遊": { t: "The Unfiltered Explorer", d: "Raw × Intense × Solo × Spontaneous.\nA nomad who seeks truth over comfort. You find beauty in the chaos that others reject." },
                 "浄安共律": { t: "The Aesthetic Planner", d: "Refined × Gentle × Social × Structured.\nA guardian of beauty. You curate perfect harmony and reject the noise of the world." },
                 "泥安共遊": { t: "The Immersion Seeker", d: "Raw × Gentle × Social × Spontaneous.\nA connector of souls. You dive into local life with an open heart and zero judgement." },
                 "浄攻孤律": { t: "The Noble Sniper", d: "Refined × Intense × Solo × Structured.\nA stoic perfectionist. You don't tour; you hunt for the sublime moment in solitude." },
-                "default": { t: "The Unique Voyager", d: "Your value map is unique. Explore the map to find your tribe." }
+                // Generic Fallback
+                "fallback": { t: "The Unique Voyager", d: "Your value map is unique. Based on your traits, we've matched you with the closest tribe." }
             }
         },
         ja: {
             head: "旅のDNAを\n解読する。", sub: "属性ではなく、\n「価値観」で世界を再定義する。",
-            start: "スタイルを分析", save: "保存する", saved: "保存済", vibe: "動画を見る",
-            world: "世界", japan: "日本", share: "🔗 地図をシェア",
+            start: "スタイルを分析", save: "保存", saved: "保存済", vibe: "動画を見る",
+            world: "世界", japan: "日本",
+            discord: "トライド(Discord)に参加", submit: "聖地をタレこむ",
             types: {
                 "泥攻孤遊": { t: "The Unfiltered Explorer", d: "【Raw × Intense × Solo × Spontaneous】\n飾らない探究者。安全な飼育小屋より、傷だらけの荒野を選ぶ。カオスの中にこそ「生」がある。" },
                 "浄安共律": { t: "The Aesthetic Planner", d: "【Refined × Gentle × Social × Structured】\n美学ある計画者。ノイズを徹底して排除し、地上に完璧な楽園（サンクチュアリ）を設計する。" },
                 "泥安共遊": { t: "The Immersion Seeker", d: "【Raw × Gentle × Social × Spontaneous】\n没入する人。清濁併せ呑む最強の免疫力で、どんな路地裏にも「愛」を見つけ出す。" },
                 "浄攻孤律": { t: "The Noble Sniper", d: "【Refined × Intense × Solo × Structured】\n孤高の狙撃手。妥協なき美意識。あなたがするのは観光ではない、美を撃ち抜く「狩り」だ。" },
-                "default": { t: "The Unique Voyager", d: "独自の旅のスタイルを持っています。マップを探索して、あなたのトライド（部族）を見つけましょう。" }
+                "fallback": { t: "The Unique Voyager", d: "独自の旅のスタイルを持っています。あなたの価値観に最も近い部族（トライド）の地図を表示します。" }
             }
         }
     };
@@ -281,12 +300,12 @@
     let qIdx = 0;
     let scores = {mud:0, clean:0, flow:0, order:0, active:0, safe:0, solo:0, social:0};
 
-    // --- LOGIC ---
+    // --- 5. CORE LOGIC ---
     function toggleLang(){
         lang = lang==='en' ? 'ja' : 'en';
         updateUIText();
-        if(qIdx>0 && qIdx<Q.length) renderQ(); // Re-render if in quiz
-        else if(finalId) updateResultUI(); // Re-render if in result
+        if(qIdx>0 && qIdx<Q.length) renderQ(); 
+        else if(finalId) updateResultUI(); 
     }
 
     function updateUIText(){
@@ -313,7 +332,6 @@
         const box = document.getElementById('options-box');
         box.innerHTML = '';
         
-        // 5 Options with Weights
         const opts = [
             { l: lang==='ja'?"強くそう思う":"Strongly Agree", w: 2, c: "opt-5" },
             { l: lang==='ja'?"そう思う":"Agree", w: 1, c: "opt-4" },
@@ -325,14 +343,10 @@
         opts.forEach(o => {
             const btn = document.createElement('div');
             btn.className = `opt-btn ${o.c}`;
-            btn.innerHTML = `<span>${o.l}</span>`; // Text
+            btn.innerHTML = `<span>${o.l}</span>`; 
             btn.onclick = () => {
-                // Scoring Logic with Multiplier
-                // Positive Weight adds to Positive Traits
                 if(o.w > 0) Object.keys(q.pos).forEach(k => scores[k] += q.pos[k] * o.w);
-                // Negative Weight adds to Negative Traits (using absolute value)
                 if(o.w < 0) Object.keys(q.neg).forEach(k => scores[k] += q.neg[k] * Math.abs(o.w));
-                
                 qIdx++;
                 renderQ();
             };
@@ -340,10 +354,7 @@
         });
     }
 
-    function prevQ(){
-        if(qIdx > 0){ qIdx--; renderQ(); }
-        else { location.reload(); }
-    }
+    function prevQ(){ if(qIdx > 0){ qIdx--; renderQ(); } else { location.reload(); } }
 
     function finishQuiz(){
         const axis1 = scores.mud >= scores.clean ? "泥" : "浄";
@@ -358,20 +369,43 @@
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('quiz-screen').classList.add('hidden');
         document.getElementById('result-screen').classList.remove('hidden');
+        
         updateResultUI();
-        setTimeout(initMap, 200);
+        
+        // Fix Leaflet sizing issue by forcing a refresh
+        setTimeout(() => {
+            initMap();
+            if(map) map.invalidateSize();
+        }, 200);
     }
 
     function updateResultUI(){
-        const tData = T[lang].types[finalId] || T[lang].types["default"];
+        // Logic: Try exact match, otherwise nearest or fallback
+        let tData = T[lang].types[finalId];
+        
+        // Fallback Logic: If exact key missing, map to 4 main types
+        if(!tData){
+            // Simplify logic: Map to the closest of the 4 keys available in T
+            // Priority: Mud/Clean > Active/Safe
+            if(finalId.includes("泥") && finalId.includes("攻")) tData = T[lang].types["泥攻孤遊"];
+            else if(finalId.includes("浄") && finalId.includes("安")) tData = T[lang].types["浄安共律"];
+            else if(finalId.includes("泥") && finalId.includes("共")) tData = T[lang].types["泥安共遊"];
+            else if(finalId.includes("浄") && finalId.includes("攻")) tData = T[lang].types["浄攻孤律"];
+            else tData = T[lang].types["fallback"];
+        }
+
         document.getElementById('res-id').innerText = tData.t;
         document.getElementById('res-desc').innerText = tData.d;
         
+        // Update Buttons
         const t = T[lang];
+        document.getElementById('btn-discord').innerText = t.discord;
+        document.getElementById('btn-submit').innerText = t.submit;
         document.getElementById('opt-world').innerText = t.world;
         document.getElementById('opt-japan').innerText = t.japan;
-        document.querySelector('.ctrl-share').innerText = t.share;
-        
+        document.getElementById('txt-save').innerText = t.save;
+        document.getElementById('txt-insta').innerText = t.vibe;
+
         if(map) updateMap();
     }
 
@@ -382,6 +416,7 @@
         updateMap();
     }
 
+    // --- 6. MAP LOGIC ---
     function initMap(){
         if(map) { map.invalidateSize(); return; }
         map = L.map('map');
@@ -396,12 +431,31 @@
         markers.forEach(m => map.removeLayer(m));
         markers = [];
         
-        const allSpots = dataCache[finalId] || [];
-        let spots = [];
-        if(mode === 'japan') spots = allSpots.filter(s => s.region === 'japan');
-        else spots = allSpots.filter(s => s.region === 'world');
+        // DATA FALLBACK LOGIC
+        // If exact ID exists in cache, use it. If not, try "Nearest Neighbor"
+        let rawSpots = dataCache[finalId];
+        
+        if(!rawSpots || rawSpots.length === 0){
+             // Try to find ANY data that shares at least 2 chars (e.g. 泥攻..)
+             const keys = Object.keys(dataCache);
+             for(let k of keys){
+                 let matchCount = 0;
+                 if(finalId[0] === k[0]) matchCount++;
+                 if(finalId[1] === k[1]) matchCount++;
+                 if(matchCount >= 2) {
+                     rawSpots = dataCache[k];
+                     break;
+                 }
+             }
+             // If still empty, use everything (fallback to prevent empty map)
+             if(!rawSpots) rawSpots = Object.values(dataCache).flat();
+        }
 
-        if(spots.length === 0) return;
+        let spots = [];
+        if(mode === 'japan') spots = rawSpots.filter(s => s.region === 'japan');
+        else spots = rawSpots.filter(s => s.region === 'world');
+
+        if(!spots || spots.length === 0) return;
 
         const bounds = [];
         spots.forEach(s => {
@@ -465,14 +519,20 @@
         }
     }
 
-    function shareMap() {
+    function shareUrl() {
         const savedArr = Array.from(saved);
         const baseUrl = window.location.origin + window.location.pathname;
         const shareUrl = `${baseUrl}?id=${finalId}&saved=${savedArr.join(',')}`;
-        
         navigator.clipboard.writeText(shareUrl).then(() => {
-            alert(lang==='ja' ? "URLをコピーしました！友達にシェアしましょう。" : "URL copied! Share it with your tribe.");
+            alert("URL Copied!");
         });
+    }
+
+    function shareTwitter() {
+        const tData = T[lang].types[finalId] || T[lang].types["fallback"];
+        const text = `I am "${tData.t}". #TravelID`;
+        const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`;
+        window.open(url, '_blank');
     }
 
     init();
