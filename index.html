@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@900&display=swap" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
@@ -21,8 +21,9 @@
             --bg: #f8fafc;
             --border: #e2e8f0;
             --pink: #ff007f; /* Neon Pink for Save */
-            --green: #10b981; /* Green for System */
+            --green: #10b981; 
             --scale-5: #111827; --scale-4: #4b5563; --scale-3: #9ca3af; --scale-2: #d1d5db; --scale-1: #f3f4f6;
+            --discord: #5865F2;
         }
         body{font-family: 'Inter', 'Noto Sans JP', sans-serif; background-color:var(--bg); color:var(--primary); margin:0; padding:0; line-height:1.6;}
         .container{background:#ffffff; width:100%; max-width:480px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; box-shadow: 0 0 20px rgba(0,0,0,0.05); position:relative;}
@@ -76,15 +77,16 @@
         /* ★ KANJI ID (Big & Impactful) ★ */
         .id-kanji {
             font-family: 'Noto Sans JP', sans-serif;
-            font-size: 48px; font-weight: 900; color: var(--primary);
-            margin: 10px 0 5px; letter-spacing: 8px; line-height: 1.2;
+            font-size: 52px; font-weight: 900; color: var(--primary);
+            margin: 10px 0 5px; letter-spacing: 2px; line-height: 1.2;
             text-shadow: 2px 2px 0px rgba(0,0,0,0.05);
         }
 
         /* Type Image */
         .type-img-container {
-            width: 100%; max-width: 200px; margin: 0 auto 15px;
-            border-radius: 12px; overflow: hidden; display: none; /* Hidden until loaded */
+            width: 100%; max-width: 240px; margin: 10px auto 20px;
+            border-radius: 16px; overflow: hidden; display: none; /* Hidden until loaded */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         .type-img { width: 100%; height: auto; display: block; }
 
@@ -99,7 +101,12 @@
             border: 1px solid var(--border); font-weight: 700; 
             display:flex; align-items:center; justify-content:center; gap:6px; cursor: pointer;
         }
-        .tribe-btn.discord { background: #5865F2; color: white; border:none; grid-column: span 2;}
+        /* Discord Button Style */
+        .tribe-btn.discord { 
+            background: #5865F2; color: white; border:none; 
+            grid-column: span 2; /* Full width */
+            font-size: 13px; padding: 14px;
+        }
         .tribe-btn:active { transform: scale(0.98); }
 
         /* Map Controls */
@@ -122,25 +129,34 @@
         .actions { display: flex; gap: 10px; }
         .act-btn { flex: 1; padding: 14px; border-radius: 12px; font-size: 13px; font-weight: 700; text-align: center; cursor: pointer; border: 1px solid var(--border); display: flex; justify-content: center; align-items: center; gap: 6px; text-decoration: none; color: var(--primary); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
         
-        /* Save Button Animation */
+        /* ★ SAVE ANIMATION ★ */
+        .act-save { transition: background-color 0.3s, border-color 0.3s, color 0.3s; }
         .act-save.saved { 
-            background: var(--pink); color: white; border-color: var(--pink); 
-            animation: pop 0.3s ease-out;
+            background-color: var(--pink); 
+            color: white; 
+            border-color: var(--pink); 
+            animation: pop 0.4s ease-out;
         }
         .act-vibe { background: var(--primary); color: white; border-color: var(--primary); }
 
         @keyframes pop {
             0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            40% { transform: scale(1.15); }
             100% { transform: scale(1); }
         }
 
         .hidden { display: none !important; }
         
-        /* Pins */
+        /* ★ PIN STYLES ★ */
         img.leaflet-marker-icon { transition: all 0.3s; }
-        .pin-sys { filter: hue-rotate(140deg) brightness(0.9); } /* Greenish System Pin */
-        .pin-sav { filter: hue-rotate(320deg) saturate(3) brightness(1.1); transform: scale(1.4) translateY(-15px); z-index: 1000 !important; } /* Neon Pink Saved */
+        .pin-sys { filter: hue-rotate(140deg) brightness(0.9); } /* Greenish */
+        
+        /* Pink Pin: Blue(240) + 90 = 330(Pink) */
+        .pin-sav { 
+            filter: hue-rotate(90deg) saturate(3) brightness(1.2); 
+            transform: scale(1.5) translateY(-15px); 
+            z-index: 1000 !important; 
+        } 
     </style>
 </head>
 <body>
@@ -178,7 +194,7 @@
             <h1 class="id-title" id="res-id">Loading...</h1>
 
             <div class="type-img-container" id="img-container">
-                <img id="type-image" class="type-img" src="" alt="Type Illustration" onerror="this.style.display='none'">
+                <img id="type-image" class="type-img" src="" alt="Type Illustration" onerror="this.parentElement.style.display='none'">
             </div>
 
             <p class="id-desc" id="res-desc">Analysis complete.</p>
@@ -398,12 +414,12 @@
     function updateResultUI(){
         document.getElementById('res-kanji').innerText = `【 ${finalId} 】`;
 
-        // Image Logic
+        // Image Logic: Try to load ./images/泥攻孤遊.png
         const img = document.getElementById('type-image');
         const imgCon = document.getElementById('img-container');
         img.src = `./images/${finalId}.png`;
         img.onload = () => { imgCon.style.display = 'block'; };
-        img.onerror = () => { imgCon.style.display = 'none'; };
+        // onerror is handled inline
 
         let tData = T[lang].types[finalId];
         if(!tData){
@@ -529,8 +545,10 @@
     function copyDiscordProfile() {
         const tData = T[lang].types[finalId] || T[lang].types["fallback"];
         let recSpot = "Not selected";
+        
+        // Find best recommended spot
         if(dataCache[finalId] && dataCache[finalId].length > 0) {
-            recSpot = dataCache[finalId][0].name_jp; // Pick first spot as example
+            recSpot = lang==='ja' ? dataCache[finalId][0].name_jp : dataCache[finalId][0].name_en; 
         }
 
         const text = `**【${finalId}】 (${tData.t})**\n${tData.d}\n\n📍 Recommended: ${recSpot}\n#TravelID\n${window.location.href}`;
