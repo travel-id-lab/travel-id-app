@@ -8,35 +8,36 @@
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700;900&display=swap" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
     <style>
         :root{
-            --primary: #111827; /* Dark Slate */
-            --secondary: #6b7280; /* Gray */
-            --accent: #2563eb; /* Blue */
+            --primary: #111827; 
+            --secondary: #6b7280; 
+            --accent: #2563eb; 
             --bg: #f8fafc;
             --border: #e2e8f0;
-            /* Scale Colors */
             --scale-5: #111827; --scale-4: #4b5563; --scale-3: #9ca3af; --scale-2: #d1d5db; --scale-1: #f3f4f6;
         }
-        body{font-family: 'Inter', sans-serif; background-color:var(--bg); color:var(--primary); margin:0; padding:0; line-height:1.6;}
+        body{font-family: 'Inter', 'Noto Sans JP', sans-serif; background-color:var(--bg); color:var(--primary); margin:0; padding:0; line-height:1.6;}
         .container{background:#ffffff; width:100%; max-width:480px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; box-shadow: 0 0 20px rgba(0,0,0,0.05); position:relative;}
         
-        /* Language Toggle (Fixed Top Right) */
+        /* Language Toggle (Always Visible) */
         .lang-switch { 
             position: absolute; top: 20px; right: 20px; 
-            font-size: 12px; font-weight: 800; color: var(--secondary); 
-            cursor: pointer; z-index: 9999; background: rgba(255,255,255,0.9);
-            padding: 5px 10px; border-radius: 20px; border: 1px solid var(--border);
+            font-size: 11px; font-weight: 800; color: var(--primary); 
+            cursor: pointer; z-index: 9999; background: white;
+            padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         /* Typography */
         .header { padding: 60px 24px 40px; }
         .brand-tag { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); display:block; margin-bottom: 12px;}
-        h1 { font-size: 36px; font-weight: 900; margin: 0; letter-spacing: -1.5px; line-height: 1.1; color: var(--primary); }
+        h1 { font-size: 38px; font-weight: 900; margin: 0; letter-spacing: -1.5px; line-height: 1.1; color: var(--primary); }
         .hero-sub { font-size: 15px; color: var(--secondary); margin-top: 16px; font-weight: 500; }
 
         /* Buttons */
@@ -59,31 +60,37 @@
             border: 1px solid var(--border); border-radius: 12px; background: white;
             text-align: left; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.1s;
         }
-        /* Visual Weight for Options */
         .opt-5 { border-left: 6px solid var(--scale-5); }
         .opt-4 { border-left: 4px solid var(--scale-4); }
         .opt-3 { border-left: 2px solid var(--scale-3); color: var(--secondary); }
         .opt-2 { border-left: 1px solid var(--scale-2); color: var(--secondary); }
         .opt-1 { border-left: 1px solid var(--scale-1); color: #9ca3af; background: #f9fafb; }
-        .opt-btn:active { background: #f1f5f9; transform: scale(0.99); }
 
         /* Result Dashboard */
         #result-screen { flex-grow: 1; display: flex; flex-direction: column; height: 100vh; }
-        .res-header { padding: 60px 24px 20px; background: white; border-bottom: 1px solid var(--border); flex-shrink: 0;}
-        .id-label { font-size: 10px; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; }
-        .id-title { font-size: 28px; font-weight: 900; margin: 4px 0 8px; color: var(--primary); letter-spacing: -1px; line-height:1.2;}
-        .id-desc { font-size: 13px; color: var(--secondary); line-height: 1.5; margin-bottom: 15px;}
         
-        /* Action Buttons Grid */
+        .res-header { padding: 50px 24px 20px; background: white; border-bottom: 1px solid var(--border); flex-shrink: 0;}
+        .id-label { font-size: 10px; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* THE KANJI ID (Big & Strong) */
+        .id-kanji {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 42px; font-weight: 900; color: var(--primary);
+            margin: 10px 0 5px; letter-spacing: 4px; line-height: 1;
+        }
+
+        .id-title { font-size: 20px; font-weight: 700; margin: 0 0 10px; color: var(--accent); letter-spacing: -0.5px;}
+        .id-desc { font-size: 13px; color: var(--secondary); line-height: 1.6; margin-bottom: 20px;}
+        
+        /* Action Buttons */
         .tribe-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
         .tribe-btn { 
-            font-size: 11px; padding: 10px; border-radius: 8px; background: white; 
+            font-size: 11px; padding: 12px; border-radius: 8px; background: white; 
             color: var(--primary); text-align: center; text-decoration: none; 
             border: 1px solid var(--border); font-weight: 700; 
             display:flex; align-items:center; justify-content:center; gap:6px;
         }
         .tribe-btn.discord { background: #5865F2; color: white; border:none; grid-column: span 2;}
-        .tribe-btn:hover { opacity: 0.9; }
 
         /* Map Controls */
         .controls { display: flex; padding: 10px 24px; gap: 8px; background: white; border-bottom: 1px solid var(--border); flex-shrink: 0;}
@@ -100,7 +107,6 @@
             background: white; border-top: 1px solid var(--border); padding: 24px;
             box-shadow: 0 -10px 30px rgba(0,0,0,0.1); z-index: 999; flex-shrink: 0;
         }
-        .spot-h { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
         .spot-n { font-size: 16px; font-weight: 800; margin: 0; }
         .spot-d { font-size: 12px; color: var(--secondary); margin-bottom: 15px; }
         .actions { display: flex; gap: 10px; }
@@ -109,7 +115,6 @@
         .act-vibe { background: var(--primary); color: white; border-color: var(--primary); }
 
         .hidden { display: none !important; }
-
         /* Pins */
         img.leaflet-marker-icon { transition: all 0.3s; }
         .pin-sys { filter: hue-rotate(230deg) saturate(0.8); } 
@@ -125,16 +130,11 @@
         <span class="brand-tag">Travel ID</span>
         <h1 id="t-head">Decode Your<br>Travel DNA.</h1>
         <p class="hero-sub" id="t-sub">We don't match you by demographics.<br>We match you by values.</p>
-        
         <button class="btn-primary" onclick="startQuiz()">
             <span id="t-start">Analyze My Style</span> <span>→</span>
         </button>
-        
         <div style="margin-top:40px; border-top:1px solid #f1f5f9; padding-top:20px;">
-            <p style="font-size:11px; color:#9ca3af; line-height:1.5;">
-                v26.0 (Complete Fix)<br>
-                Powered by Human Intelligence.
-            </p>
+            <p style="font-size:11px; color:#9ca3af; line-height:1.5;">v27.0 (Final Fix)</p>
         </div>
     </div>
 
@@ -149,9 +149,11 @@
     </div>
 
     <div id="result-screen" class="hidden">
-        
         <div class="res-header">
             <span class="id-label">YOUR SEGMENT</span>
+            
+            <div class="id-kanji" id="res-kanji">【  】</div>
+            
             <h1 class="id-title" id="res-id">Loading...</h1>
             <p class="id-desc" id="res-desc">Analysis complete.</p>
             
@@ -159,7 +161,7 @@
                 <a href="https://discord.gg/placeholder" target="_blank" class="tribe-btn discord">
                     <span>💬</span> <span id="btn-discord">Join Tribe Discord</span>
                 </a>
-                <a href="https://forms.gle/5L7ndRzgPnh45Mor8" target="_blank" class="tribe-btn">
+                <a href="https://forms.google.com/placeholder" target="_blank" class="tribe-btn">
                     <span>⚡</span> <span id="btn-submit">Submit Spot</span>
                 </a>
                 <div class="tribe-btn" onclick="shareTwitter()" style="cursor:pointer; background:black; color:white; border:none;">
@@ -210,11 +212,10 @@
     let saved = new Set();
     let curSpot = null;
 
-    // --- 3. LOGIC INIT ---
+    // --- 3. LOGIC ---
     function init(){
         const urlParams = new URLSearchParams(window.location.search);
         const sharedId = urlParams.get('id');
-        const sharedSaved = urlParams.get('saved');
         const localSaved = JSON.parse(localStorage.getItem('tid_saved') || '[]');
         saved = new Set(localSaved);
 
@@ -234,7 +235,7 @@
             complete: res => {
                 res.data.forEach(r => {
                     if(r.id){
-                        const k = r.id.trim(); // "泥攻孤遊" etc.
+                        const k = r.id.trim();
                         if(!dataCache[k]) dataCache[k] = [];
                         dataCache[k].push({
                             uid: r.uid || Math.random().toString(), 
@@ -250,7 +251,7 @@
         });
     }
 
-    // --- 4. BRAND & TEXT ---
+    // --- BRAND DATA ---
     const T = {
         en: {
             head: "Decode Your\nTravel DNA.", sub: "We don't match you by demographics.\nWe match you by values.",
@@ -262,7 +263,6 @@
                 "浄安共律": { t: "The Aesthetic Planner", d: "Refined × Gentle × Social × Structured.\nA guardian of beauty. You curate perfect harmony and reject the noise of the world." },
                 "泥安共遊": { t: "The Immersion Seeker", d: "Raw × Gentle × Social × Spontaneous.\nA connector of souls. You dive into local life with an open heart and zero judgement." },
                 "浄攻孤律": { t: "The Noble Sniper", d: "Refined × Intense × Solo × Structured.\nA stoic perfectionist. You don't tour; you hunt for the sublime moment in solitude." },
-                // Generic Fallback
                 "fallback": { t: "The Unique Voyager", d: "Your value map is unique. Based on your traits, we've matched you with the closest tribe." }
             }
         },
@@ -300,12 +300,11 @@
     let qIdx = 0;
     let scores = {mud:0, clean:0, flow:0, order:0, active:0, safe:0, solo:0, social:0};
 
-    // --- 5. CORE LOGIC ---
     function toggleLang(){
         lang = lang==='en' ? 'ja' : 'en';
         updateUIText();
-        if(qIdx>0 && qIdx<Q.length) renderQ(); 
-        else if(finalId) updateResultUI(); 
+        if(finalId) updateResultUI(); 
+        else if(qIdx>0) renderQ(); 
     }
 
     function updateUIText(){
@@ -331,7 +330,6 @@
         
         const box = document.getElementById('options-box');
         box.innerHTML = '';
-        
         const opts = [
             { l: lang==='ja'?"強くそう思う":"Strongly Agree", w: 2, c: "opt-5" },
             { l: lang==='ja'?"そう思う":"Agree", w: 1, c: "opt-4" },
@@ -339,7 +337,6 @@
             { l: lang==='ja'?"そう思わない":"Disagree", w: -1, c: "opt-2" },
             { l: lang==='ja'?"全くそう思わない":"Strongly Disagree", w: -2, c: "opt-1" }
         ];
-
         opts.forEach(o => {
             const btn = document.createElement('div');
             btn.className = `opt-btn ${o.c}`;
@@ -347,8 +344,7 @@
             btn.onclick = () => {
                 if(o.w > 0) Object.keys(q.pos).forEach(k => scores[k] += q.pos[k] * o.w);
                 if(o.w < 0) Object.keys(q.neg).forEach(k => scores[k] += q.neg[k] * Math.abs(o.w));
-                qIdx++;
-                renderQ();
+                qIdx++; renderQ();
             };
             box.appendChild(btn);
         });
@@ -369,24 +365,16 @@
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('quiz-screen').classList.add('hidden');
         document.getElementById('result-screen').classList.remove('hidden');
-        
         updateResultUI();
-        
-        // Fix Leaflet sizing issue by forcing a refresh
-        setTimeout(() => {
-            initMap();
-            if(map) map.invalidateSize();
-        }, 200);
+        setTimeout(() => { initMap(); if(map) map.invalidateSize(); }, 200);
     }
 
     function updateResultUI(){
-        // Logic: Try exact match, otherwise nearest or fallback
+        // KANJI DISPLAY FIX
+        document.getElementById('res-kanji').innerText = `【 ${finalId} 】`;
+
         let tData = T[lang].types[finalId];
-        
-        // Fallback Logic: If exact key missing, map to 4 main types
         if(!tData){
-            // Simplify logic: Map to the closest of the 4 keys available in T
-            // Priority: Mud/Clean > Active/Safe
             if(finalId.includes("泥") && finalId.includes("攻")) tData = T[lang].types["泥攻孤遊"];
             else if(finalId.includes("浄") && finalId.includes("安")) tData = T[lang].types["浄安共律"];
             else if(finalId.includes("泥") && finalId.includes("共")) tData = T[lang].types["泥安共遊"];
@@ -397,7 +385,6 @@
         document.getElementById('res-id').innerText = tData.t;
         document.getElementById('res-desc').innerText = tData.d;
         
-        // Update Buttons
         const t = T[lang];
         document.getElementById('btn-discord').innerText = t.discord;
         document.getElementById('btn-submit').innerText = t.submit;
@@ -416,7 +403,7 @@
         updateMap();
     }
 
-    // --- 6. MAP LOGIC ---
+    // --- MAP LOGIC (NO MORE GREY MAP) ---
     function initMap(){
         if(map) { map.invalidateSize(); return; }
         map = L.map('map');
@@ -431,23 +418,14 @@
         markers.forEach(m => map.removeLayer(m));
         markers = [];
         
-        // DATA FALLBACK LOGIC
-        // If exact ID exists in cache, use it. If not, try "Nearest Neighbor"
         let rawSpots = dataCache[finalId];
         
+        // Fallback Logic
         if(!rawSpots || rawSpots.length === 0){
-             // Try to find ANY data that shares at least 2 chars (e.g. 泥攻..)
              const keys = Object.keys(dataCache);
              for(let k of keys){
-                 let matchCount = 0;
-                 if(finalId[0] === k[0]) matchCount++;
-                 if(finalId[1] === k[1]) matchCount++;
-                 if(matchCount >= 2) {
-                     rawSpots = dataCache[k];
-                     break;
-                 }
+                 if(finalId.includes(k.substring(0,2))) { rawSpots = dataCache[k]; break; }
              }
-             // If still empty, use everything (fallback to prevent empty map)
              if(!rawSpots) rawSpots = Object.values(dataCache).flat();
         }
 
@@ -455,7 +433,11 @@
         if(mode === 'japan') spots = rawSpots.filter(s => s.region === 'japan');
         else spots = rawSpots.filter(s => s.region === 'world');
 
-        if(!spots || spots.length === 0) return;
+        // ★ FIX: If no spots, center on Japan so map is not grey
+        if(!spots || spots.length === 0) {
+            map.setView([36.0, 138.0], 5);
+            return;
+        }
 
         const bounds = [];
         spots.forEach(s => {
@@ -524,13 +506,13 @@
         const baseUrl = window.location.origin + window.location.pathname;
         const shareUrl = `${baseUrl}?id=${finalId}&saved=${savedArr.join(',')}`;
         navigator.clipboard.writeText(shareUrl).then(() => {
-            alert("URL Copied!");
+            alert(lang==='ja' ? "URLをコピーしました！" : "URL Copied!");
         });
     }
 
     function shareTwitter() {
         const tData = T[lang].types[finalId] || T[lang].types["fallback"];
-        const text = `I am "${tData.t}". #TravelID`;
+        const text = `I am "${tData.t}". My Travel ID is 【${finalId}】. #TravelID`;
         const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`;
         window.open(url, '_blank');
     }
