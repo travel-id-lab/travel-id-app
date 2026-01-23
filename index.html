@@ -20,12 +20,14 @@
             --accent: #2563eb; 
             --bg: #f8fafc;
             --border: #e2e8f0;
+            --pink: #ff007f; /* Neon Pink for Save */
+            --green: #10b981; /* Green for System */
             --scale-5: #111827; --scale-4: #4b5563; --scale-3: #9ca3af; --scale-2: #d1d5db; --scale-1: #f3f4f6;
         }
         body{font-family: 'Inter', 'Noto Sans JP', sans-serif; background-color:var(--bg); color:var(--primary); margin:0; padding:0; line-height:1.6;}
         .container{background:#ffffff; width:100%; max-width:480px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; box-shadow: 0 0 20px rgba(0,0,0,0.05); position:relative;}
         
-        /* Language Toggle (Always Visible) */
+        /* Language Toggle */
         .lang-switch { 
             position: absolute; top: 20px; right: 20px; 
             font-size: 11px; font-weight: 800; color: var(--primary); 
@@ -69,18 +71,25 @@
         /* Result Dashboard */
         #result-screen { flex-grow: 1; display: flex; flex-direction: column; height: 100vh; }
         
-        .res-header { padding: 50px 24px 20px; background: white; border-bottom: 1px solid var(--border); flex-shrink: 0;}
-        .id-label { font-size: 10px; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; }
+        .res-header { padding: 40px 24px 20px; background: white; border-bottom: 1px solid var(--border); flex-shrink: 0; text-align: center;}
         
-        /* THE KANJI ID (Big & Strong) */
+        /* ★ KANJI ID (Big & Impactful) ★ */
         .id-kanji {
             font-family: 'Noto Sans JP', sans-serif;
-            font-size: 42px; font-weight: 900; color: var(--primary);
-            margin: 10px 0 5px; letter-spacing: 4px; line-height: 1;
+            font-size: 48px; font-weight: 900; color: var(--primary);
+            margin: 10px 0 5px; letter-spacing: 8px; line-height: 1.2;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.05);
         }
 
-        .id-title { font-size: 20px; font-weight: 700; margin: 0 0 10px; color: var(--accent); letter-spacing: -0.5px;}
-        .id-desc { font-size: 13px; color: var(--secondary); line-height: 1.6; margin-bottom: 20px;}
+        /* Type Image */
+        .type-img-container {
+            width: 100%; max-width: 200px; margin: 0 auto 15px;
+            border-radius: 12px; overflow: hidden; display: none; /* Hidden until loaded */
+        }
+        .type-img { width: 100%; height: auto; display: block; }
+
+        .id-title { font-size: 18px; font-weight: 700; margin: 0 0 10px; color: var(--accent); letter-spacing: 0px; text-transform: uppercase;}
+        .id-desc { font-size: 13px; color: var(--secondary); line-height: 1.6; margin-bottom: 20px; text-align: left;}
         
         /* Action Buttons */
         .tribe-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
@@ -88,9 +97,10 @@
             font-size: 11px; padding: 12px; border-radius: 8px; background: white; 
             color: var(--primary); text-align: center; text-decoration: none; 
             border: 1px solid var(--border); font-weight: 700; 
-            display:flex; align-items:center; justify-content:center; gap:6px;
+            display:flex; align-items:center; justify-content:center; gap:6px; cursor: pointer;
         }
         .tribe-btn.discord { background: #5865F2; color: white; border:none; grid-column: span 2;}
+        .tribe-btn:active { transform: scale(0.98); }
 
         /* Map Controls */
         .controls { display: flex; padding: 10px 24px; gap: 8px; background: white; border-bottom: 1px solid var(--border); flex-shrink: 0;}
@@ -110,15 +120,27 @@
         .spot-n { font-size: 16px; font-weight: 800; margin: 0; }
         .spot-d { font-size: 12px; color: var(--secondary); margin-bottom: 15px; }
         .actions { display: flex; gap: 10px; }
-        .act-btn { flex: 1; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 700; text-align: center; cursor: pointer; border: 1px solid var(--border); display: flex; justify-content: center; align-items: center; gap: 6px; text-decoration: none; color: var(--primary); transition:0.2s;}
-        .act-save.saved { background: #fdf2f8; color: #db2777; border-color: #fbcfe8; }
+        .act-btn { flex: 1; padding: 14px; border-radius: 12px; font-size: 13px; font-weight: 700; text-align: center; cursor: pointer; border: 1px solid var(--border); display: flex; justify-content: center; align-items: center; gap: 6px; text-decoration: none; color: var(--primary); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
+        
+        /* Save Button Animation */
+        .act-save.saved { 
+            background: var(--pink); color: white; border-color: var(--pink); 
+            animation: pop 0.3s ease-out;
+        }
         .act-vibe { background: var(--primary); color: white; border-color: var(--primary); }
 
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
         .hidden { display: none !important; }
+        
         /* Pins */
         img.leaflet-marker-icon { transition: all 0.3s; }
-        .pin-sys { filter: hue-rotate(230deg) saturate(0.8); } 
-        .pin-sav { filter: hue-rotate(320deg) saturate(2); transform: scale(1.3) translateY(-10px); z-index: 1000 !important; }
+        .pin-sys { filter: hue-rotate(140deg) brightness(0.9); } /* Greenish System Pin */
+        .pin-sav { filter: hue-rotate(320deg) saturate(3) brightness(1.1); transform: scale(1.4) translateY(-15px); z-index: 1000 !important; } /* Neon Pink Saved */
     </style>
 </head>
 <body>
@@ -134,7 +156,7 @@
             <span id="t-start">Analyze My Style</span> <span>→</span>
         </button>
         <div style="margin-top:40px; border-top:1px solid #f1f5f9; padding-top:20px;">
-            <p style="font-size:11px; color:#9ca3af; line-height:1.5;">v27.0 (Final Fix)</p>
+            <p style="font-size:11px; color:#9ca3af; line-height:1.5;">v28.0 (Impact & Vibe)</p>
         </div>
     </div>
 
@@ -150,21 +172,25 @@
 
     <div id="result-screen" class="hidden">
         <div class="res-header">
-            <span class="id-label">YOUR SEGMENT</span>
+            <span class="brand-tag">YOUR SEGMENT</span>
             
-            <div class="id-kanji" id="res-kanji">【  】</div>
-            
+            <div class="id-kanji" id="res-kanji">【 】</div>
             <h1 class="id-title" id="res-id">Loading...</h1>
+
+            <div class="type-img-container" id="img-container">
+                <img id="type-image" class="type-img" src="" alt="Type Illustration" onerror="this.style.display='none'">
+            </div>
+
             <p class="id-desc" id="res-desc">Analysis complete.</p>
             
             <div class="tribe-actions">
-                <a href="https://discord.gg/placeholder" target="_blank" class="tribe-btn discord">
-                    <span>💬</span> <span id="btn-discord">Join Tribe Discord</span>
-                </a>
-                <a href="https://forms.google.com/placeholder" target="_blank" class="tribe-btn">
+                <button class="tribe-btn discord" onclick="copyDiscordProfile()">
+                    <span>📋</span> <span id="btn-discord">Copy Profile for Discord</span>
+                </button>
+                <a href="https://forms.gle/5L7ndRzgPnh45Mor8" target="_blank" class="tribe-btn">
                     <span>⚡</span> <span id="btn-submit">Submit Spot</span>
                 </a>
-                <div class="tribe-btn" onclick="shareTwitter()" style="cursor:pointer; background:black; color:white; border:none;">
+                <div class="tribe-btn" onclick="shareTwitter()">
                     <span>𝕏</span> Share
                 </div>
             </div>
@@ -255,9 +281,9 @@
     const T = {
         en: {
             head: "Decode Your\nTravel DNA.", sub: "We don't match you by demographics.\nWe match you by values.",
-            start: "Analyze My Style", save: "Save", saved: "Saved", vibe: "View Vibe",
+            start: "Analyze My Style", save: "Save", saved: "Saved!", vibe: "View Vibe",
             world: "Global", japan: "Domestic", 
-            discord: "Join Tribe Discord", submit: "Submit Spot",
+            discord: "Copy Profile for Discord", submit: "Submit Spot",
             types: {
                 "泥攻孤遊": { t: "The Unfiltered Explorer", d: "Raw × Intense × Solo × Spontaneous.\nA nomad who seeks truth over comfort. You find beauty in the chaos that others reject." },
                 "浄安共律": { t: "The Aesthetic Planner", d: "Refined × Gentle × Social × Structured.\nA guardian of beauty. You curate perfect harmony and reject the noise of the world." },
@@ -268,9 +294,9 @@
         },
         ja: {
             head: "旅のDNAを\n解読する。", sub: "属性ではなく、\n「価値観」で世界を再定義する。",
-            start: "スタイルを分析", save: "保存", saved: "保存済", vibe: "動画を見る",
+            start: "スタイルを分析", save: "保存", saved: "保存完了", vibe: "動画を見る",
             world: "世界", japan: "日本",
-            discord: "トライド(Discord)に参加", submit: "聖地をタレこむ",
+            discord: "Discord用プロフをコピー", submit: "聖地をタレこむ",
             types: {
                 "泥攻孤遊": { t: "The Unfiltered Explorer", d: "【Raw × Intense × Solo × Spontaneous】\n飾らない探究者。安全な飼育小屋より、傷だらけの荒野を選ぶ。カオスの中にこそ「生」がある。" },
                 "浄安共律": { t: "The Aesthetic Planner", d: "【Refined × Gentle × Social × Structured】\n美学ある計画者。ノイズを徹底して排除し、地上に完璧な楽園（サンクチュアリ）を設計する。" },
@@ -370,8 +396,14 @@
     }
 
     function updateResultUI(){
-        // KANJI DISPLAY FIX
         document.getElementById('res-kanji').innerText = `【 ${finalId} 】`;
+
+        // Image Logic
+        const img = document.getElementById('type-image');
+        const imgCon = document.getElementById('img-container');
+        img.src = `./images/${finalId}.png`;
+        img.onload = () => { imgCon.style.display = 'block'; };
+        img.onerror = () => { imgCon.style.display = 'none'; };
 
         let tData = T[lang].types[finalId];
         if(!tData){
@@ -403,7 +435,6 @@
         updateMap();
     }
 
-    // --- MAP LOGIC (NO MORE GREY MAP) ---
     function initMap(){
         if(map) { map.invalidateSize(); return; }
         map = L.map('map');
@@ -419,8 +450,6 @@
         markers = [];
         
         let rawSpots = dataCache[finalId];
-        
-        // Fallback Logic
         if(!rawSpots || rawSpots.length === 0){
              const keys = Object.keys(dataCache);
              for(let k of keys){
@@ -433,11 +462,7 @@
         if(mode === 'japan') spots = rawSpots.filter(s => s.region === 'japan');
         else spots = rawSpots.filter(s => s.region === 'world');
 
-        // ★ FIX: If no spots, center on Japan so map is not grey
-        if(!spots || spots.length === 0) {
-            map.setView([36.0, 138.0], 5);
-            return;
-        }
+        if(!spots || spots.length === 0) { map.setView([36.0, 138.0], 5); return; }
 
         const bounds = [];
         spots.forEach(s => {
@@ -499,6 +524,20 @@
             icon.innerText = '♡';
             txt.innerText = t.save;
         }
+    }
+
+    function copyDiscordProfile() {
+        const tData = T[lang].types[finalId] || T[lang].types["fallback"];
+        let recSpot = "Not selected";
+        if(dataCache[finalId] && dataCache[finalId].length > 0) {
+            recSpot = dataCache[finalId][0].name_jp; // Pick first spot as example
+        }
+
+        const text = `**【${finalId}】 (${tData.t})**\n${tData.d}\n\n📍 Recommended: ${recSpot}\n#TravelID\n${window.location.href}`;
+        
+        navigator.clipboard.writeText(text).then(() => {
+            alert(lang==='ja' ? "プロフをコピーしました！Discordに貼り付けてください。" : "Profile copied! Paste it in Discord.");
+        });
     }
 
     function shareUrl() {
