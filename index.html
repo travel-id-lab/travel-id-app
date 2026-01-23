@@ -25,7 +25,7 @@
         .mode-bg { position: absolute; top: 2px; left: 2px; width: 50%; height: 36px; background: var(--primary); border-radius: 28px; transition: left 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); z-index: 1; }
         .mode-switch.japan-mode .mode-bg { left: 50%; background: #ef4444; }
 
-        #map-container { width: 100%; height: 350px; border-radius: 16px; margin-top: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; border: 2px solid #e2e8f0;}
+        #map-container { width: 100%; height: 350px; border-radius: 16px; margin-top: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; border: 2px solid #e2e8f0; background: #eee;}
         #map { width: 100%; height: 100%; }
         
         .lang-switch{position:absolute;top:20px;right:20px;background:#f1f5f9;padding:5px 10px;border-radius:20px;font-size:12px;font-weight:bold;cursor:pointer;border:1px solid #e2e8f0;color:#64748b;}
@@ -78,7 +78,7 @@
         <h2 id="start-subtitle">あなたの旅のスタイルを<br>13問で解明します。</h2>
         <img src="./images/logo.png" alt="Travel ID Logo" class="app-logo">
         <button class="start-btn" onclick="startQuiz()" id="start-btn-text" style="background:linear-gradient(135deg,var(--primary),var(--accent));color:white;border:none;font-size:20px;padding:20px 40px;width:100%;border-radius:16px;font-weight:bold;cursor:pointer;">診断を始める</button>
-        <p style="font-size:10px; color:#cbd5e1; margin-top:15px;">v18.0 (Fixed Map & Data)</p>
+        <p style="font-size:10px; color:#cbd5e1; margin-top:15px;">v18.1 (Map Fix & Data Clean)</p>
     </div>
 
     <div id="quiz-screen" class="hidden">
@@ -150,33 +150,35 @@
     let map = null;
     let markers = [];
     let japanDataCache = {}; 
-    let currentSpotName = ""; // シェア用
+    let currentSpotName = ""; // シェア用変数
 
-    // --- Data Fetching (Startup) ---
+    // --- Data Fetching (With Cleaning) ---
     function fetchJapanData() {
         Papa.parse(CSV_URL, {
             download: true,
             header: true,
             skipEmptyLines: true,
             complete: function(results) {
-                console.log("Raw CSV:", results.data); // Debug check
+                console.log("Raw CSV:", results.data); 
                 results.data.forEach(row => {
                     if(row.id) {
-                        // 【修正1】 IDの空白を除去して保存
+                        // 【修正】キーと値の空白を徹底的に削除
                         const cleanId = row.id.trim();
+                        const cleanTag = row.tag ? row.tag.trim() : "";
+                        
                         if (!japanDataCache[cleanId]) japanDataCache[cleanId] = [];
                         japanDataCache[cleanId].push({
-                            rec: row.rec_jp,
-                            rec_en: row.rec_en,
-                            desc: row.desc,
-                            tag: row.tag,
+                            rec: row.rec_jp ? row.rec_jp.trim() : "",
+                            rec_en: row.rec_en ? row.rec_en.trim() : "",
+                            desc: row.desc ? row.desc.trim() : "Recommended by Travel ID",
+                            tag: cleanTag,
                             lat: parseFloat(row.lat),
                             lng: parseFloat(row.lng),
-                            zoom: parseInt(row.zoom) || 12 // Default if missing
+                            zoom: parseInt(row.zoom) || 12 // Default zoom
                         });
                     }
                 });
-                console.log("Japan Data Loaded!", japanDataCache);
+                console.log("Cleaned Data:", japanDataCache);
             }
         });
     }
@@ -198,11 +200,11 @@
         }
     };
 
-    // --- 13 Questions Data (Full Version) ---
+    // --- 13 Questions Data ---
     const questions=[{ja:"絶景のためなら、シャワーのない不衛生な宿でも我慢できる。",en:"I can endure poor hygiene for a great view.",pos:{mud:2,active:1},neg:{clean:2,safe:1}},{ja:"スケジュールは決めず、その場の気分で動きたい。",en:"I prefer spontaneity over planning.",pos:{flow:2,safe:0.5},neg:{order:2,active:0.5}},{ja:"安全なリゾートより、少し危険な路地裏にワクワクする。",en:"Gritty alleys excite me more than safe resorts.",pos:{active:2,mud:1},neg:{safe:2,clean:1}},{ja:"食事は個室よりも、現地の人と相席になるような店がいい。",en:"I prefer lively local eateries over private dining.",pos:{social:2,mud:0.5},neg:{solo:2,clean:0.5}},{ja:"トラブル（電車遅延など）も「面白い展開」だと楽しめる。",en:"Travel troubles are interesting twists, not panic.",pos:{flow:2,active:1},neg:{order:2,safe:1}},{ja:"言葉が通じない場所でのジェスチャー交渉は楽しい。",en:"Communicating with gestures is fun.",pos:{active:2,social:1},neg:{safe:2,solo:1}},{ja:"予算があれば、高級ホテルよりアクティビティに使いたい。",en:"I spend extra budget on activities, not hotels.",pos:{active:2,mud:0.5},neg:{clean:2,safe:0.5}},{ja:"誰とも話さず大自然で一人きり。それは至福の時間だ。",en:"Being alone in nature is bliss.",pos:{solo:2,mud:1},neg:{social:2,safe:1}},{ja:"見たことのない謎の屋台料理も、迷わず食べる。",en:"I try mysterious street food without hesitation.",pos:{mud:2,active:1},neg:{clean:2,safe:1}},{ja:"旅の目的は「癒やし」より「価値観を壊す刺激」だ。",en:"Travel is for culture shock, not relaxation.",pos:{active:2,flow:1},neg:{safe:2,order:1}},{ja:"自分に合わせてくれる人より、振り回してくる人がいい。",en:"I prefer crazy travel companions over passive ones.",pos:{flow:2,social:1},neg:{order:2,solo:1}},{ja:"荷造りは「もしも」を考えて多くなる方だ。",en:"I overpack for 'what if' scenarios.",pos:{order:2,safe:1},neg:{flow:2,mud:1}},{ja:"毎朝のルーティンは旅先でも守りたい。",en:"I keep my morning routine even when traveling.",pos:{order:2,clean:0.5},neg:{flow:2,active:0.5}}];
     const optionsData=[{ja:"完全にそう思う",en:"Strongly Agree",weight:1.0,type:"pos"},{ja:"ややそう思う",en:"Agree",weight:0.5,type:"pos"},{ja:"どちらでもない",en:"Neutral",weight:0,type:"neu"},{ja:"あまりそう思わない",en:"Disagree",weight:0.5,type:"neg"},{ja:"全くそう思わない",en:"Strongly Disagree",weight:1.0,type:"neg"}];
     
-    // Result Data (Full World Mock + Desc Fix)
+    // Result Data (Full World Mock)
     const resultData = {
         "泥攻孤遊": { ja: { title: "孤高のハードコア冒険家", desc: "快適さより生の実感。直感で動く。" }, en: { title: "The Adventurer", desc: "Raw reality over comfort." }, world: [{ rec: "エチオピア（ダナキル砂漠）", rec_en: "Ethiopia", tag: "AdventureTravel", lat: 14.0323, lng: 40.2936, desc: "地球上で最も過酷な場所。" }] },
         "浄安共律": { ja: { title: "クリスタル・コーディネーター", desc: "清潔と秩序を愛する完璧主義者。" }, en: { title: "The Coordinator", desc: "Cleanliness and order." }, world: [{ rec: "シンガポール（マリーナベイ）", rec_en: "Singapore", tag: "LuxuryTravel", lat: 1.2834, lng: 103.8607, desc: "完璧なインフラと衛生管理。" }] },
@@ -267,9 +269,11 @@
         document.getElementById('result-screen').classList.remove('hidden');
         document.getElementById('result-image').src=`./images/${finalId}.png`;
 
-        // Map Init
-        setTimeout(initMap, 100);
-        updateResultUI();
+        // 【修正】マップ初期化タイミングを遅らせて、確実にグレー画面を防ぐ
+        setTimeout(() => {
+            initMap();
+            updateResultUI();
+        }, 500);
     }
 
     function toggleMapMode() {
@@ -291,7 +295,7 @@
     }
 
     function updateResultUI() {
-        if (!resultData[finalId]) finalId = "浄安共律"; // Fail-safe
+        if (!resultData[finalId]) finalId = "浄安共律"; 
         const basicData = resultData[finalId];
         const basic = basicData[currentLang];
         document.getElementById('result-id').innerText = `【${finalId}】`;
@@ -299,12 +303,11 @@
         
         let spots = [];
         if (currentMode === 'japan') {
-            // 【修正1】 IDの空白を除去して照合
             const cleanFinalId = finalId.trim();
             if (japanDataCache[cleanFinalId] && japanDataCache[cleanFinalId].length > 0) {
                 spots = japanDataCache[cleanFinalId];
             } else {
-                document.getElementById('rec-content').innerText = "Loading data or No Match...";
+                document.getElementById('rec-content').innerText = "Loading data...";
                 return;
             }
         } else {
@@ -319,16 +322,24 @@
 
     function updateInfoBox(spot) {
         const name = currentLang === 'ja' ? spot.rec : spot.rec_en;
-        currentSpotName = name; // For Sharing
+        currentSpotName = name; // Share用変数更新
         document.getElementById('rec-content').innerText = name;
-        document.getElementById('insta-link').href = `https://www.instagram.com/explore/tags/${spot.tag}/`;
-        document.getElementById('insta-link').innerText = `${translations[currentLang].instaBtn} #${spot.tag}`;
+        
+        // 【修正】タグが空の場合はリンクを無効化せずトップへ（または非表示）
+        const tag = spot.tag ? spot.tag : "";
+        document.getElementById('insta-link').href = tag ? `https://www.instagram.com/explore/tags/${tag}/` : "#";
+        document.getElementById('insta-link').innerText = `${translations[currentLang].instaBtn} ${tag ? '#'+tag : ''}`;
     }
 
     function initMap() {
         const container = document.getElementById('map-container');
         container.style.display = 'block';
-        if(map) { map.invalidateSize(); return; }
+        
+        if(map) { 
+            map.invalidateSize(); // 【重要】リサイズ通知でグレー画面防止
+            return; 
+        }
+        
         map = L.map('map');
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap', maxZoom: 19
@@ -337,32 +348,36 @@
 
     function updateMapPins(spots) {
         if (!map) return;
+        map.invalidateSize(); // 念のためここでも呼ぶ
+        
         markers.forEach(m => map.removeLayer(m));
         markers = [];
         const bounds = [];
         
         spots.forEach(spot => {
-            // 【修正2】 スポットが1つなら setView, 複数なら fitBounds
+            // 【修正】スポットが1つならsetView、複数ならbounds
             if (spots.length === 1) {
-                map.setView([spot.lat, spot.lng], spot.zoom || 6); // Worldモードのズーム修正
+                map.setView([spot.lat, spot.lng], spot.zoom || 12);
             }
             
             const marker = L.marker([spot.lat, spot.lng]).addTo(map);
             marker.on('click', () => { updateInfoBox(spot); marker.openPopup(); });
             
             const name = currentLang === 'ja' ? spot.rec : spot.rec_en;
-            // 【修正3】 説明文が空でも表示崩れを防ぐ
-            const desc = spot.desc || "Recommended by Travel ID";
+            const desc = spot.desc || "Recommended";
             marker.bindPopup(`<div class="map-card"><h4>${name}</h4><p>${desc}</p></div>`);
             
             markers.push(marker);
             bounds.push([spot.lat, spot.lng]);
         });
 
-        if (spots.length > 1) map.fitBounds(bounds, { padding: [50, 50] });
+        // 複数スポットがある場合のみ自動ズーム
+        if (spots.length > 1 && bounds.length > 0) {
+            map.fitBounds(bounds, { padding: [50, 50] });
+        }
     }
 
-    // 【修正4】 シェア文言におすすめスポット追加
+    // 【修正】シェア文言におすすめスポット追加
     function shareOnX() {
         const text = `My Travel ID: ${finalId}\nRec: ${currentSpotName}\n#TravelID`;
         window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`, '_blank');
