@@ -1,392 +1,481 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Travel ID - Ultimate Atlas</title>
+    <title>Travel ID - Value Segmentation</title>
     <link rel="icon" href="./images/logo.png">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9SCPDPG40L"></script>
-    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-9SCPDPG40L');</script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
     <style>
-        :root{--primary:#3b82f6;--accent:#8b5cf6;--bg:#f8fafc;--card:#ffffff;--text:#1e293b;--x-color:#000000;--discord-color:#5865F2;--danger:#ef4444;--match:#db2777;--insta-grad:linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);}
-        body{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",YuGothic,sans-serif;background-color:var(--bg);color:var(--text);margin:0;padding:20px;line-height:1.6;}
-        .container{background:var(--card);width:100%;max-width:500px;margin:0 auto;padding:30px;border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,0.08);text-align:center;position:relative;overflow:hidden;}
+        :root{
+            --primary: #111827; /* Dark Slate */
+            --secondary: #6b7280; /* Gray */
+            --accent: #2563eb; /* Blue */
+            --bg: #ffffff;
+            --border: #e5e7eb;
+            /* Scale Colors */
+            --scale-5: #111827; /* Strong Agree */
+            --scale-4: #4b5563; /* Agree */
+            --scale-3: #9ca3af; /* Neutral */
+            --scale-2: #d1d5db; /* Disagree */
+            --scale-1: #f3f4f6; /* Strong Disagree */
+        }
+        body{font-family: 'Inter', sans-serif; background-color:#f3f4f6; color:var(--primary); margin:0; padding:20px; line-height:1.6;}
+        .container{background:var(--bg); width:100%; max-width:480px; margin:0 auto; padding:0; min-height:90vh; display:flex; flex-direction:column; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); border-radius: 16px; overflow:hidden;}
         
-        .mode-switch-container { display: flex; justify-content: center; margin: 20px 0; }
-        .mode-switch { display: flex; background: #e2e8f0; border-radius: 30px; padding: 4px; position: relative; cursor: pointer; width: 200px; height: 40px; align-items: center; }
-        .mode-option { flex: 1; text-align: center; font-weight: bold; font-size: 14px; z-index: 2; color: #64748b; transition: color 0.3s; }
-        .mode-option.active { color: white; }
-        .mode-bg { position: absolute; top: 2px; left: 2px; width: 50%; height: 36px; background: var(--primary); border-radius: 28px; transition: left 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); z-index: 1; }
-        .mode-switch.japan-mode .mode-bg { left: 50%; background: #ef4444; }
+        /* Typography & Layout */
+        .header { padding: 40px 24px; text-align: left; }
+        .brand-tag { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); display:block; margin-bottom: 12px;}
+        h1 { font-size: 36px; font-weight: 900; margin: 0; letter-spacing: -1.5px; line-height: 1; color: var(--primary); }
+        .hero-sub { font-size: 16px; color: var(--secondary); margin-top: 16px; font-weight: 400; line-height: 1.5; }
 
-        #map-container { width: 100%; height: 350px; border-radius: 16px; margin-top: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; border: 2px solid #e2e8f0; background: #eee;}
+        /* Buttons */
+        .btn-primary {
+            background: var(--primary); color: white; border: none; font-size: 16px; padding: 18px; width: 100%; 
+            border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 30px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary::after { content: "→"; font-weight: 800; opacity: 0.8; }
+
+        /* Quiz UI - 5 Scale */
+        #quiz-screen { padding: 30px 24px; }
+        .progress-track { height: 4px; background: #f1f5f9; margin-bottom: 30px; border-radius: 2px; }
+        .progress-bar { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
+        .q-cat { font-size: 10px; font-weight: 800; color: var(--accent); letter-spacing: 1px; margin-bottom: 8px; display: block; text-transform: uppercase;}
+        .q-text { font-size: 20px; font-weight: 800; margin-bottom: 30px; min-height: 70px; line-height: 1.35; letter-spacing: -0.3px;}
+        
+        /* 5-Option Styling */
+        .opt-btn {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; padding: 14px 20px; margin-bottom: 8px;
+            border: 1px solid var(--border); border-radius: 10px;
+            text-align: left; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.1s;
+        }
+        /* Gradient of intensity */
+        .opt-5 { background: var(--scale-5); color: white; border-color: var(--scale-5); }
+        .opt-4 { background: white; color: var(--primary); border-left: 5px solid var(--scale-5); }
+        .opt-3 { background: white; color: var(--secondary); border-left: 2px solid var(--scale-3); font-weight:500;}
+        .opt-2 { background: white; color: var(--secondary); border-left: 1px solid var(--scale-2); font-weight:500;}
+        .opt-1 { background: #f9fafb; color: #9ca3af; border: 1px solid transparent; font-weight:500;}
+
+        .opt-btn:active { transform: scale(0.99); opacity: 0.9; }
+
+        /* Result Dashboard */
+        #result-screen { flex-grow: 1; display: flex; flex-direction: column; }
+        .res-header { padding: 24px; border-bottom: 1px solid var(--border); background: white;}
+        .id-label { font-size: 10px; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; }
+        .id-title { font-size: 28px; font-weight: 900; margin: 5px 0 8px; color: var(--primary); letter-spacing: -1px; }
+        .id-desc { font-size: 13px; color: var(--secondary); line-height: 1.5; margin-bottom: 15px;}
+        
+        .tribe-actions { display: flex; gap: 10px; margin-top: 10px; }
+        .tribe-btn { flex: 1; font-size: 11px; padding: 12px; border-radius: 6px; background: #f8fafc; color: var(--secondary); text-align: center; text-decoration: none; border: 1px solid var(--border); font-weight: 600; display:flex; align-items:center; justify-content:center; gap:5px;}
+        .tribe-btn:hover { background: #f1f5f9; color: var(--primary); }
+
+        /* Controls */
+        .controls { display: flex; padding: 10px 24px; gap: 8px; background: white; border-bottom: 1px solid var(--border);}
+        .ctrl-pill { padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 20px; cursor: pointer; background: #f1f5f9; color: var(--secondary); border: 1px solid transparent;}
+        .ctrl-pill.active { background: var(--primary); color: white; }
+        .ctrl-share { margin-left: auto; background: white; border-color: var(--border); color: var(--primary); }
+
+        /* Map */
+        #map-container { flex-grow: 1; background: #e2e8f0; position: relative; z-index: 1; min-height: 400px;}
         #map { width: 100%; height: 100%; }
-        
-        .lang-switch{position:absolute;top:20px;right:20px;background:#f1f5f9;padding:5px 10px;border-radius:20px;font-size:12px;font-weight:bold;cursor:pointer;border:1px solid #e2e8f0;color:#64748b;}
-        h1{font-size:24px;margin:10px 0;font-weight:800;margin-top:20px;}
-        h2{font-size:16px;color:#64748b;margin-bottom:30px;font-weight:normal;}
-        .app-logo{display:block;margin:30px auto;width:240px;max-width:70%;height:auto;}
-        
-        /* Quiz UI */
-        .options-list{text-align:left;display:flex;flex-direction:column;gap:12px;margin-bottom:30px;}
-        .option-label{display:flex;align-items:center;padding:15px;border:2px solid #e2e8f0;border-radius:12px;cursor:pointer;transition:0.2s;}
-        .option-label:hover{background-color:#f8fafc;border-color:#cbd5e1;}
-        .option-label.selected{border-color:var(--primary);background-color:#eff6ff;}
-        .option-radio{margin-right:15px;transform:scale(1.2);accent-color:var(--primary);}
-        .nav-buttons{display:flex;justify-content:space-between;gap:15px;}
-        .nav-btn{flex:1;padding:14px;border-radius:12px;border:none;font-weight:bold;cursor:pointer;font-size:16px;}
-        .btn-back{background:#e2e8f0;color:#64748b;}
-        .btn-next{background:var(--primary);color:white;}
-        .btn-next:disabled{opacity:0.5;cursor:not-allowed;}
-        .question-text{font-size:18px;font-weight:700;margin-bottom:20px;min-height:60px;display:flex;align-items:center;justify-content:center;}
-        .progress-bar{height:6px;background:#e2e8f0;margin-bottom:20px;border-radius:3px;overflow:hidden;}
-        .progress-fill{height:100%;background:var(--primary);width:0%;transition:width 0.3s;}
 
-        .info-box{background:#f1f5f9;border-radius:16px;padding:20px;text-align:left;margin-bottom:15px;border:1px solid #e2e8f0;}
-        .info-title{font-size:12px;font-weight:bold;color:#64748b;margin-bottom:5px;text-transform:uppercase;}
-        .info-content{font-size:16px;font-weight:bold;color:#334155;}
-        .insta-btn { display: block; width: 100%; margin-top: 15px; padding: 12px; background: var(--insta-grad); color: white; border: none; border-radius: 12px; font-weight: bold; text-decoration: none; text-align: center; box-sizing: border-box; transition: 0.2s;}
-        .insta-btn:hover { opacity: 0.9; transform: translateY(-2px); }
-        
-        .share-area { display: flex; gap: 10px; margin: 20px 0; }
-        button.share-btn { flex: 1; color: white; border: none; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 13px; transition: 0.2s;}
-        button.share-btn:hover { opacity: 0.9; transform: translateY(-2px); }
-        .x { background: var(--x-color); } .discord { background: var(--discord-color); }
-        
-        .hidden{display:none;}
-        .fade-in{animation:fadeIn 0.6s ease-out;}
-        @keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+        /* Floating Card */
+        .spot-card {
+            background: white; border-top: 1px solid var(--border); padding: 24px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.08); z-index: 100;
+        }
+        .spot-h { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+        .spot-n { font-size: 16px; font-weight: 700; margin: 0; }
+        .spot-d { font-size: 13px; color: var(--secondary); margin-bottom: 20px; }
+        .actions { display: flex; gap: 10px; }
+        .act-btn { flex: 1; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; text-align: center; cursor: pointer; border: 1px solid var(--border); display: flex; justify-content: center; align-items: center; gap: 6px; text-decoration: none; color: var(--primary); transition:0.2s;}
+        .act-save.saved { background: #fdf2f8; color: #db2777; border-color: #fbcfe8; }
+        .act-vibe { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .map-card { width: 180px; }
-        .map-card h4 { margin: 0 0 5px 0; font-size: 14px; color: #1e293b; }
-        .map-card p { font-size: 11px; margin: 0; color: #64748b; line-height: 1.4; }
+        /* Utility */
+        .hidden { display: none !important; }
+        .lang-switch { position: absolute; top: 20px; right: 24px; font-size: 11px; font-weight: 700; color: var(--secondary); cursor: pointer; z-index: 20;}
+
+        /* Leaflet Pins */
+        img.leaflet-marker-icon { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .pin-sys { filter: hue-rotate(230deg) saturate(0.8) brightness(0.8); } 
+        .pin-sav { filter: hue-rotate(320deg) saturate(2); transform: scale(1.3) translateY(-10px); z-index: 1000 !important; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="lang-switch" onclick="toggleLanguage()" id="lang-btn">🇯🇵 JP / 🇺🇸 EN</div>
+    <div class="lang-switch" onclick="toggleLang()" id="lang-btn">EN / JP</div>
 
-    <div id="start-screen">
-        <h1 id="start-title">Travel ID 診断</h1>
-        <h2 id="start-subtitle">あなたの旅のスタイルを<br>13問で解明します。</h2>
-        <img src="./images/logo.png" alt="Travel ID Logo" class="app-logo">
-        <button class="start-btn" onclick="startQuiz()" id="start-btn-text" style="background:linear-gradient(135deg,var(--primary),var(--accent));color:white;border:none;font-size:20px;padding:20px 40px;width:100%;border-radius:16px;font-weight:bold;cursor:pointer;">診断を始める</button>
-        <p style="font-size:10px; color:#cbd5e1; margin-top:15px;">v18.1 (Map Fix & Data Clean)</p>
+    <div id="start-screen" class="header">
+        <span class="brand-tag">Travel ID</span>
+        <h1 id="t-head">Decode Your<br>Travel DNA.</h1>
+        <p class="hero-sub" id="t-sub">We don't match you by demographics.<br>We match you by values.</p>
+        
+        <button class="btn-primary" onclick="startQuiz()" id="t-start">Analyze My Style</button>
+        
+        <div style="margin-top:40px; border-top:1px solid #e5e7eb; padding-top:20px;">
+            <p style="font-size:11px; color:#9ca3af; line-height:1.5;">
+                v25.0 (5-Scale Precision)<br>
+                Powered by Human Intelligence & Values.
+            </p>
+        </div>
     </div>
 
     <div id="quiz-screen" class="hidden">
-        <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
-        <div class="question-text" id="question-text">Loading...</div>
-        <div class="options-list" id="options-container"></div>
-        <div class="nav-buttons">
-            <button class="nav-btn btn-back" onclick="prevQuestion()" id="btn-back">戻る</button>
-            <button class="nav-btn btn-next" onclick="nextQuestion()" id="btn-next" disabled>次へ</button>
+        <div class="progress-track"><div class="progress-bar" id="progress"></div></div>
+        <span class="q-cat" id="q-cat">CATEGORY</span>
+        <div class="q-text" id="q-text">Loading...</div>
+        <div id="options-box"></div>
+        <div style="margin-top:30px; text-align:center;">
+            <span onclick="prevQ()" style="font-size:12px; color:#9ca3af; cursor:pointer; text-decoration:underline;">Back</span>
         </div>
     </div>
 
-    <div id="pre-result-screen" class="hidden fade-in">
-        <h1 id="pre-title">診断完了！</h1>
-        <p id="pre-subtitle">最後の仕上げです。<br>MBTIを追加すると精度が上がります。</p>
-        <div style="margin:20px 0;text-align:left;">
-            <label style="font-size:14px;font-weight:bold;color:#64748b;">MBTI (任意):</label>
-            <select id="mbti-select" style="width:100%;padding:12px;margin-top:5px;border-radius:12px;border:2px solid #e2e8f0;background:#f8fafc;">
-                <option value="">わからない / Skip</option>
-                <option value="INTJ">INTJ</option><option value="INTP">INTP</option><option value="ENTJ">ENTJ</option><option value="ENTP">ENTP</option>
-                <option value="INFJ">INFJ</option><option value="INFP">INFP</option><option value="ENFJ">ENFJ</option><option value="ENFP">ENFP</option>
-                <option value="ISTJ">ISTJ</option><option value="ISFJ">ISFJ</option><option value="ESTJ">ESTJ</option><option value="ESFJ">ESFJ</option>
-                <option value="ISTP">ISTP</option><option value="ISFP">ISFP</option><option value="ESTP">ESTP</option><option value="ESFP">ESFP</option>
-            </select>
-        </div>
-        <button class="start-btn" onclick="calcAndShowResults()" id="show-result-btn-text" style="background:var(--primary);color:white;border:none;font-size:20px;padding:20px 40px;width:100%;border-radius:16px;font-weight:bold;cursor:pointer;">結果を見る</button>
-    </div>
-
-    <div id="result-screen" class="hidden fade-in">
-        <img id="result-image" src="" alt="Result" style="width:100%;border-radius:16px;margin-bottom:20px;">
-        <h2 style="color:#3b82f6;margin-bottom:5px;" id="result-label">あなたのID</h2>
-        <h1 id="result-id" style="font-size:42px;margin:0 0 10px 0;background:linear-gradient(45deg,#3b82f6,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:900;"></h1>
-        <p id="result-desc" style="font-size:14px;color:#64748b;font-weight:bold;"></p>
-
-        <div class="mode-switch-container">
-            <div class="mode-switch" onclick="toggleMapMode()" id="mode-switch">
-                <div class="mode-bg"></div>
-                <div class="mode-option active" id="opt-world">🌏 World</div>
-                <div class="mode-option" id="opt-japan">🇯🇵 Japan</div>
+    <div id="result-screen" class="hidden">
+        
+        <div class="res-header">
+            <span class="id-label">YOUR SEGMENT</span>
+            <h1 class="id-title" id="res-id">Loading...</h1>
+            <p class="id-desc" id="res-desc">Analysis complete.</p>
+            
+            <div class="tribe-actions">
+                <a href="https://forms.gle/5L7ndRzgPnh45Mor8" target="_blank" class="tribe-btn">
+                    <span>⚡</span> Submit a Hidden Spot
+                </a>
             </div>
         </div>
 
-        <div class="info-box">
-            <div class="info-title" id="rec-label">🗺️ おすすめの旅先</div>
-            <div class="info-content" id="rec-content">Loading data...</div>
-            <a href="#" target="_blank" class="insta-btn" id="insta-link">📷 この場所を動画で見る</a>
+        <div class="controls">
+            <div class="ctrl-pill active" onclick="setMode('japan')" id="opt-japan">Japan</div>
+            <div class="ctrl-pill" onclick="setMode('world')" id="opt-world">Global</div>
+            <div class="ctrl-pill ctrl-share" onclick="shareMap()">🔗 Share Map</div>
         </div>
 
         <div id="map-container"><div id="map"></div></div>
 
-        <div class="share-area">
-            <button class="share-btn x" onclick="shareOnX()">X (Twitter)</button>
-            <button class="share-btn discord" onclick="copyForDiscord()">Discord</button>
+        <div class="spot-card">
+            <h3 class="spot-n" id="spot-name">Explore your world</h3>
+            <p class="spot-d" id="spot-desc">Select a pin to reveal spots curated for your DNA.</p>
+            <div class="actions">
+                <button class="act-btn act-save" id="btn-save" onclick="toggleSave()">
+                    <span id="icon-save">♡</span> <span id="txt-save">Save</span>
+                </button>
+                <a href="#" target="_blank" class="act-btn act-vibe" id="btn-insta">
+                    <span>▶</span> <span id="txt-insta">Vibe</span>
+                </a>
+            </div>
         </div>
-        
-        <button onclick="location.reload()" style="margin-top:20px;background:#f1f5f9;border:none;padding:12px 20px;border-radius:20px;width:100%;color:#64748b;font-weight:bold;cursor:pointer;">トップに戻る</button>
     </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
 <script>
-    // ★★★★ あなたのGoogleスプレッドシートURL ★★★★
+    // --- CONFIGURATION ---
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRrOI46FP-ueet2ZD0xKG0r1_xFng90_PDr1Z-sm6OB5xe3I8m0nx5Q5aNIVxvRVi1QLczBbv4pdnAv/pub?output=csv'; 
-
-    let currentLang = 'ja';
-    let currentMode = 'world'; 
+    
+    // --- STATE ---
+    let lang = 'en'; 
+    let mode = 'japan'; 
     let finalId = "";
     let map = null;
     let markers = [];
-    let japanDataCache = {}; 
-    let currentSpotName = ""; // シェア用変数
+    let dataCache = {};
+    let saved = new Set();
+    let curSpot = null;
 
-    // --- Data Fetching (With Cleaning) ---
-    function fetchJapanData() {
+    // --- INIT ---
+    function init(){
+        const urlParams = new URLSearchParams(window.location.search);
+        const sharedId = urlParams.get('id');
+        const sharedSaved = urlParams.get('saved');
+        const localSaved = JSON.parse(localStorage.getItem('tid_saved') || '[]');
+        saved = new Set(localSaved);
+
+        if(sharedId) {
+            finalId = sharedId;
+            fetchData(() => { showResultScreen(); });
+        } else {
+            fetchData();
+            updateUIText();
+        }
+    }
+
+    function fetchData(callback){
         Papa.parse(CSV_URL, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: function(results) {
-                console.log("Raw CSV:", results.data); 
-                results.data.forEach(row => {
-                    if(row.id) {
-                        // 【修正】キーと値の空白を徹底的に削除
-                        const cleanId = row.id.trim();
-                        const cleanTag = row.tag ? row.tag.trim() : "";
-                        
-                        if (!japanDataCache[cleanId]) japanDataCache[cleanId] = [];
-                        japanDataCache[cleanId].push({
-                            rec: row.rec_jp ? row.rec_jp.trim() : "",
-                            rec_en: row.rec_en ? row.rec_en.trim() : "",
-                            desc: row.desc ? row.desc.trim() : "Recommended by Travel ID",
-                            tag: cleanTag,
-                            lat: parseFloat(row.lat),
-                            lng: parseFloat(row.lng),
-                            zoom: parseInt(row.zoom) || 12 // Default zoom
+            download: true, header: true, skipEmptyLines: true,
+            complete: res => {
+                res.data.forEach(r => {
+                    if(r.id){
+                        const k = r.id.trim();
+                        if(!dataCache[k]) dataCache[k] = [];
+                        dataCache[k].push({
+                            uid: r.uid || Math.random().toString(), 
+                            name_jp: r.rec_jp, name_en: r.rec_en,
+                            desc: r.desc, tag: r.tag ? r.tag.trim() : "",
+                            lat: parseFloat(r.lat), lng: parseFloat(r.lng), 
+                            zoom: parseInt(r.zoom)||12, region: r.region ? r.region.trim().toLowerCase() : 'japan'
                         });
                     }
                 });
-                console.log("Cleaned Data:", japanDataCache);
+                if(callback) callback();
             }
         });
     }
-    fetchJapanData();
 
-    // --- Translations ---
-    const translations = {
-        ja: {
-            title: "Travel ID 診断", subtitle: "あなたの旅のスタイルを<br>13問で解明します。", startBtn: "診断を始める", btnNext: "次へ", btnBack: "戻る",
-            labelRec: "🗺️ おすすめの旅先", instaBtn: "📷 この場所を動画で見る",
-            preTitle: "診断完了！", preSubtitle: "最後の仕上げです。<br>MBTIを追加すると精度が上がります。", showResultBtn: "結果を見る",
-            world: "🌏 世界", japan: "🇯🇵 日本"
-        },
+    // --- TEXT & BRAND ---
+    const T = {
         en: {
-            title: "Travel ID Diagnosis", subtitle: "Discover your true travel style.", startBtn: "Start Quiz", btnNext: "Next", btnBack: "Back",
-            labelRec: "🗺️ Recommended", instaBtn: "📷 See Vibe on Instagram",
-            preTitle: "Almost Done!", preSubtitle: "Add MBTI for better accuracy.", showResultBtn: "See Results",
-            world: "🌏 World", japan: "🇯🇵 Japan"
-        }
-    };
-
-    // --- 13 Questions Data ---
-    const questions=[{ja:"絶景のためなら、シャワーのない不衛生な宿でも我慢できる。",en:"I can endure poor hygiene for a great view.",pos:{mud:2,active:1},neg:{clean:2,safe:1}},{ja:"スケジュールは決めず、その場の気分で動きたい。",en:"I prefer spontaneity over planning.",pos:{flow:2,safe:0.5},neg:{order:2,active:0.5}},{ja:"安全なリゾートより、少し危険な路地裏にワクワクする。",en:"Gritty alleys excite me more than safe resorts.",pos:{active:2,mud:1},neg:{safe:2,clean:1}},{ja:"食事は個室よりも、現地の人と相席になるような店がいい。",en:"I prefer lively local eateries over private dining.",pos:{social:2,mud:0.5},neg:{solo:2,clean:0.5}},{ja:"トラブル（電車遅延など）も「面白い展開」だと楽しめる。",en:"Travel troubles are interesting twists, not panic.",pos:{flow:2,active:1},neg:{order:2,safe:1}},{ja:"言葉が通じない場所でのジェスチャー交渉は楽しい。",en:"Communicating with gestures is fun.",pos:{active:2,social:1},neg:{safe:2,solo:1}},{ja:"予算があれば、高級ホテルよりアクティビティに使いたい。",en:"I spend extra budget on activities, not hotels.",pos:{active:2,mud:0.5},neg:{clean:2,safe:0.5}},{ja:"誰とも話さず大自然で一人きり。それは至福の時間だ。",en:"Being alone in nature is bliss.",pos:{solo:2,mud:1},neg:{social:2,safe:1}},{ja:"見たことのない謎の屋台料理も、迷わず食べる。",en:"I try mysterious street food without hesitation.",pos:{mud:2,active:1},neg:{clean:2,safe:1}},{ja:"旅の目的は「癒やし」より「価値観を壊す刺激」だ。",en:"Travel is for culture shock, not relaxation.",pos:{active:2,flow:1},neg:{safe:2,order:1}},{ja:"自分に合わせてくれる人より、振り回してくる人がいい。",en:"I prefer crazy travel companions over passive ones.",pos:{flow:2,social:1},neg:{order:2,solo:1}},{ja:"荷造りは「もしも」を考えて多くなる方だ。",en:"I overpack for 'what if' scenarios.",pos:{order:2,safe:1},neg:{flow:2,mud:1}},{ja:"毎朝のルーティンは旅先でも守りたい。",en:"I keep my morning routine even when traveling.",pos:{order:2,clean:0.5},neg:{flow:2,active:0.5}}];
-    const optionsData=[{ja:"完全にそう思う",en:"Strongly Agree",weight:1.0,type:"pos"},{ja:"ややそう思う",en:"Agree",weight:0.5,type:"pos"},{ja:"どちらでもない",en:"Neutral",weight:0,type:"neu"},{ja:"あまりそう思わない",en:"Disagree",weight:0.5,type:"neg"},{ja:"全くそう思わない",en:"Strongly Disagree",weight:1.0,type:"neg"}];
-    
-    // Result Data (Full World Mock)
-    const resultData = {
-        "泥攻孤遊": { ja: { title: "孤高のハードコア冒険家", desc: "快適さより生の実感。直感で動く。" }, en: { title: "The Adventurer", desc: "Raw reality over comfort." }, world: [{ rec: "エチオピア（ダナキル砂漠）", rec_en: "Ethiopia", tag: "AdventureTravel", lat: 14.0323, lng: 40.2936, desc: "地球上で最も過酷な場所。" }] },
-        "浄安共律": { ja: { title: "クリスタル・コーディネーター", desc: "清潔と秩序を愛する完璧主義者。" }, en: { title: "The Coordinator", desc: "Cleanliness and order." }, world: [{ rec: "シンガポール（マリーナベイ）", rec_en: "Singapore", tag: "LuxuryTravel", lat: 1.2834, lng: 103.8607, desc: "完璧なインフラと衛生管理。" }] },
-        "泥攻孤律": { ja: { title: "ストイックな探検家", desc: "過酷な目標への準備を怠らない。" }, en: { title: "The Stoic Explorer", desc: "Meticulous prep." }, world: [{ rec: "パタゴニア", rec_en: "Patagonia", tag: "Patagonia", lat: -48.4239, lng: -72.5630, desc: "荒野の孤独と絶景。" }] },
-        "泥攻共遊": { ja: { title: "お祭り騒ぎのサバイバー", desc: "混沌と騒音を愛する。" }, en: { title: "The Party Survivor", desc: "Loves chaos." }, world: [{ rec: "インド（バラナシ）", rec_en: "Varanasi", tag: "Varanasi", lat: 25.3176, lng: 82.9739, desc: "生と死が混在するカオス。" }] },
-        "泥攻共律": { ja: { title: "過酷ツアーの熱血リーダー", desc: "ハードな旅を統率する。" }, en: { title: "The Leader", desc: "Leads hardcore trips." }, world: [{ rec: "キリマンジャロ", rec_en: "Kilimanjaro", tag: "Kilimanjaro", lat: -3.0674, lng: 37.3556, desc: "チームで挑む最高峰。" }] },
-        "泥安孤遊": { ja: { title: "ディープな街の放浪詩人", desc: "路地裏の生活感を愛する。" }, en: { title: "The Poet", desc: "Loves gritty alleys." }, world: [{ rec: "ベトナム（ハノイ旧市街）", rec_en: "Hanoi", tag: "Hanoi", lat: 21.0285, lng: 105.8542, desc: "バイクの騒音と路上のフォー。" }] },
-        "泥安孤律": { ja: { title: "マニアックな研究者", desc: "ニッチな対象に没入する。" }, en: { title: "The Researcher", desc: "Immersion in niche." }, world: [{ rec: "アンコールワット", rec_en: "Angkor Wat", tag: "AngkorWat", lat: 13.4125, lng: 103.8670, desc: "密林に眠る巨大遺跡。" }] },
-        "泥安共遊": { ja: { title: "下町の愛されキャラ", desc: "現地の人と即仲良くなる。" }, en: { title: "The Local's Favorite", desc: "Friends with locals." }, world: [{ rec: "タイ（カオサン通り）", rec_en: "Khao San Road", tag: "KhaoSan", lat: 13.7589, lng: 100.4974, desc: "バックパッカーの聖地。" }] },
-        "泥安共律": { ja: { title: "激安ツアーのしっかり者", desc: "安くディープに。無駄を嫌う。" }, en: { title: "The Budget Master", desc: "Cheap and deep." }, world: [{ rec: "台湾（九份）", rec_en: "Jiufen", tag: "Jiufen", lat: 25.1098, lng: 121.8452, desc: "ノスタルジックな石段の街。" }] },
-        "浄攻孤遊": { ja: { title: "スタイリッシュな自由人", desc: "洗練と自由を愛する。" }, en: { title: "The Free Spirit", desc: "Style and freedom." }, world: [{ rec: "バリ島（ウブド）", rec_en: "Ubud", tag: "Ubud", lat: -8.5069, lng: 115.2625, desc: "ヨガとオーガニックフード。" }] },
-        "浄攻孤律": { ja: { title: "完璧主義の絶景ハンター", desc: "最高の瞬間のために動く。" }, en: { title: "The Perfectionist", desc: "Perfect shot." }, world: [{ rec: "アイスランド", rec_en: "Iceland", tag: "Iceland", lat: 64.9631, lng: -19.0208, desc: "火と氷の絶景。" }] },
-        "浄攻共遊": { ja: { title: "キラキラ女子旅のカリスマ", desc: "トレンドと映えを巡る。" }, en: { title: "The Trendy Charisma", desc: "Trends and photos." }, world: [{ rec: "韓国（ソウル）", rec_en: "Seoul", tag: "Seoul", lat: 37.5665, lng: 126.9780, desc: "最新カフェとファッション。" }] },
-        "浄攻共律": { ja: { title: "アクティブ・リゾートの幹事長", desc: "快適かつ活動的な完璧な旅。" }, en: { title: "The Planner", desc: "Active luxury." }, world: [{ rec: "ドバイ", rec_en: "Dubai", tag: "Dubai", lat: 25.2048, lng: 55.2708, desc: "砂漠のラグジュアリー。" }] },
-        "浄安孤遊": { ja: { title: "優雅なホテルステイ愛好家", desc: "何もしない贅沢。" }, en: { title: "The Hotel Lover", desc: "Luxury of doing nothing." }, world: [{ rec: "パリ", rec_en: "Paris", tag: "Paris", lat: 48.8566, lng: 2.3522, desc: "セーヌ川沿いの散歩。" }] },
-        "浄安孤律": { ja: { title: "慎重派の癒やし求道者", desc: "安全で清潔な癒やし。" }, en: { title: "The Healer", desc: "Safe and clean." }, world: [{ rec: "フィンランド", rec_en: "Finland", tag: "Finland", lat: 61.9241, lng: 25.7482, desc: "湖畔のサウナと静寂。" }] },
-        "浄安共遊": { ja: { title: "のんびり温泉旅行グループ", desc: "清潔な宿でまったり。" }, en: { title: "The Chill Group", desc: "Relaxing with friends." }, world: [{ rec: "ハワイ", rec_en: "Hawaii", tag: "Hawaii", lat: 19.8968, lng: -155.5828, desc: "ワイキキビーチの夕日。" }] }
-    };
-
-    let currentQIndex=0; let userAnswers=new Array(questions.length).fill(null);
-
-    // --- Core Logic ---
-    function toggleLanguage(){currentLang=currentLang==='ja'?'en':'ja';document.getElementById('lang-btn').innerText=currentLang==='ja'?"🇯🇵 JP / 🇺🇸 EN":"🇺🇸 EN / 🇯🇵 JP";updateUIText();}
-    function updateUIText(){
-        const t=translations[currentLang];
-        document.getElementById('start-title').innerText=t.title;document.getElementById('start-subtitle').innerHTML=t.subtitle;document.getElementById('start-btn-text').innerText=t.startBtn;
-        document.getElementById('btn-next').innerText=t.btnNext;document.getElementById('btn-back').innerText=t.btnBack;
-        document.getElementById('pre-title').innerText=t.preTitle;document.getElementById('pre-subtitle').innerHTML=t.preSubtitle;document.getElementById('show-result-btn-text').innerText=t.showResultBtn;
-        document.getElementById('rec-label').innerText=t.labelRec;
-        document.getElementById('opt-world').innerText=t.world;document.getElementById('opt-japan').innerText=t.japan;
-        if(!document.getElementById('quiz-screen').classList.contains('hidden'))renderQuestion();
-        else if(!document.getElementById('result-screen').classList.contains('hidden')) updateResultUI();
-    }
-    
-    function startQuiz(){document.getElementById('start-screen').classList.add('hidden');document.getElementById('quiz-screen').classList.remove('hidden');renderQuestion();}
-    function renderQuestion(){
-        const q=questions[currentQIndex];document.getElementById('question-text').innerText=`Q${currentQIndex+1}. ${q[currentLang]}`;
-        const pct=(currentQIndex/questions.length)*100;document.getElementById('progress').style.width=`${pct}%`;
-        const container=document.getElementById('options-container');container.innerHTML='';
-        optionsData.forEach((opt,idx)=>{
-            const label=document.createElement('label');label.className='option-label';
-            if(userAnswers[currentQIndex]===idx)label.classList.add('selected');
-            const radio=document.createElement('input');radio.type='radio';radio.name='q-option';radio.className='option-radio';radio.value=idx;radio.checked=(userAnswers[currentQIndex]===idx);
-            radio.onclick=()=>{userAnswers[currentQIndex]=idx;renderQuestion();};
-            const span=document.createElement('span');span.innerText=opt[currentLang];label.appendChild(radio);label.appendChild(span);container.appendChild(label);
-        });
-        document.getElementById('btn-back').style.visibility=(currentQIndex===0)?'hidden':'visible';document.getElementById('btn-next').disabled=(userAnswers[currentQIndex]===null);
-    }
-    function nextQuestion(){currentQIndex++;if(currentQIndex<questions.length)renderQuestion();else{document.getElementById('quiz-screen').classList.add('hidden');document.getElementById('pre-result-screen').classList.remove('hidden');}}
-    function prevQuestion(){if(currentQIndex>0){currentQIndex--;renderQuestion();}}
-
-    // --- Result Calculation ---
-    function calcAndShowResults(){
-        let scores={mud:0,clean:0,active:0,safe:0,social:0,solo:0,flow:0,order:0};
-        userAnswers.forEach((optIdx,qIdx)=>{const q=questions[qIdx];const opt=optionsData[optIdx];if(opt.type==='pos'){for(const[k,v] of Object.entries(q.pos))scores[k]+=v*opt.weight;}else if(opt.type==='neg'){for(const[k,v] of Object.entries(q.neg))scores[k]+=v*opt.weight;}});
-        const mbti=document.getElementById('mbti-select').value;
-        if(mbti&&mbti.length===4){if(mbti[0]==='E')scores.social+=2;else if(mbti[0]==='I')scores.solo+=2;if(mbti[1]==='S')scores.clean+=2;else if(mbti[1]==='N')scores.mud+=2;if(mbti[3]==='J')scores.order+=2;else if(mbti[3]==='P')scores.flow+=2;}
-        const axis1=scores.mud-scores.clean;const axis2=scores.active-scores.safe;const axis3=scores.social-scores.solo;const axis4=scores.flow-scores.order;
-        finalId="";finalId+=axis1>0?"泥":"浄";finalId+=axis2>0?"攻":"安";finalId+=axis3>0?"共":"孤";finalId+=axis4>0?"遊":"律";
-        
-        document.getElementById('pre-result-screen').classList.add('hidden');
-        document.getElementById('result-screen').classList.remove('hidden');
-        document.getElementById('result-image').src=`./images/${finalId}.png`;
-
-        // 【修正】マップ初期化タイミングを遅らせて、確実にグレー画面を防ぐ
-        setTimeout(() => {
-            initMap();
-            updateResultUI();
-        }, 500);
-    }
-
-    function toggleMapMode() {
-        currentMode = currentMode === 'world' ? 'japan' : 'world';
-        const switchEl = document.getElementById('mode-switch');
-        const optWorld = document.getElementById('opt-world');
-        const optJapan = document.getElementById('opt-japan');
-        
-        if (currentMode === 'japan') {
-            switchEl.classList.add('japan-mode');
-            optWorld.classList.remove('active');
-            optJapan.classList.add('active');
-        } else {
-            switchEl.classList.remove('japan-mode');
-            optWorld.classList.add('active');
-            optJapan.classList.remove('active');
-        }
-        updateResultUI();
-    }
-
-    function updateResultUI() {
-        if (!resultData[finalId]) finalId = "浄安共律"; 
-        const basicData = resultData[finalId];
-        const basic = basicData[currentLang];
-        document.getElementById('result-id').innerText = `【${finalId}】`;
-        document.getElementById('result-desc').innerText = basic.title;
-        
-        let spots = [];
-        if (currentMode === 'japan') {
-            const cleanFinalId = finalId.trim();
-            if (japanDataCache[cleanFinalId] && japanDataCache[cleanFinalId].length > 0) {
-                spots = japanDataCache[cleanFinalId];
-            } else {
-                document.getElementById('rec-content').innerText = "Loading data...";
-                return;
+            head: "Decode Your\nTravel DNA.", sub: "We don't match you by demographics.\nWe match you by values.",
+            start: "Analyze My Style", save: "Save to Map", saved: "Saved", vibe: "View Vibe",
+            world: "Global", japan: "Domestic", share: "🔗 Share Map",
+            types: {
+                "泥攻孤遊": { t: "The Unfiltered Explorer", d: "Raw × Intense × Solo × Spontaneous.\nA nomad who seeks truth over comfort. You find beauty in the chaos that others reject." },
+                "浄安共律": { t: "The Aesthetic Planner", d: "Refined × Gentle × Social × Structured.\nA guardian of beauty. You curate perfect harmony and reject the noise of the world." },
+                "泥安共遊": { t: "The Immersion Seeker", d: "Raw × Gentle × Social × Spontaneous.\nA connector of souls. You dive into local life with an open heart and zero judgement." },
+                "浄攻孤律": { t: "The Noble Sniper", d: "Refined × Intense × Solo × Structured.\nA stoic perfectionist. You don't tour; you hunt for the sublime moment in solitude." },
+                "default": { t: "The Unique Voyager", d: "Your value map is unique. Explore the map to find your tribe." }
             }
-        } else {
-            spots = basicData.world || [];
+        },
+        ja: {
+            head: "旅のDNAを\n解読する。", sub: "属性ではなく、\n「価値観」で世界を再定義する。",
+            start: "スタイルを分析", save: "保存する", saved: "保存済", vibe: "動画を見る",
+            world: "世界", japan: "日本", share: "🔗 地図をシェア",
+            types: {
+                "泥攻孤遊": { t: "The Unfiltered Explorer", d: "【Raw × Intense × Solo × Spontaneous】\n飾らない探究者。安全な飼育小屋より、傷だらけの荒野を選ぶ。カオスの中にこそ「生」がある。" },
+                "浄安共律": { t: "The Aesthetic Planner", d: "【Refined × Gentle × Social × Structured】\n美学ある計画者。ノイズを徹底して排除し、地上に完璧な楽園（サンクチュアリ）を設計する。" },
+                "泥安共遊": { t: "The Immersion Seeker", d: "【Raw × Gentle × Social × Spontaneous】\n没入する人。清濁併せ呑む最強の免疫力で、どんな路地裏にも「愛」を見つけ出す。" },
+                "浄攻孤律": { t: "The Noble Sniper", d: "【Refined × Intense × Solo × Structured】\n孤高の狙撃手。妥協なき美意識。あなたがするのは観光ではない、美を撃ち抜く「狩り」だ。" },
+                "default": { t: "The Unique Voyager", d: "独自の旅のスタイルを持っています。マップを探索して、あなたのトライド（部族）を見つけましょう。" }
+            }
         }
-        
-        if (spots.length > 0) {
-            updateInfoBox(spots[0]);
-            updateMapPins(spots);
-        }
+    };
+
+    const Q = [
+        { cat: "ENVIRONMENT", ja: "絶景の代償が不衛生な小屋だとしても、そこに泊まるか？", en: "Would you sleep in a dirty hut for a priceless view?", pos:{mud:2}, neg:{clean:2} },
+        { cat: "CONSUMPTION", ja: "得体の知れない現地の屋台料理。リスクを負ってでも食べるか？", en: "Do you eat mysterious local street food despite risks?", pos:{mud:2}, neg:{clean:2} },
+        { cat: "ISOLATION", ja: "文明から切断された不便な場所。それは苦痛か、解放か？", en: "Is total isolation from civilization 'pain' or 'freedom'?", pos:{mud:1,solo:1}, neg:{clean:1,social:1} },
+        { cat: "UNCERTAINTY", ja: "地図を持たずに迷子になること。それはストレスか、喜びか？", en: "Is getting lost without a map 'stress' or 'joy'?", pos:{flow:2}, neg:{order:2} },
+        { cat: "CONTROL", ja: "分単位で完璧なスケジュール。安心するか、息苦しいか？", en: "Does a perfect schedule make you feel 'safe' or 'trapped'?", pos:{order:2}, neg:{flow:2} },
+        { cat: "ADAPTABILITY", ja: "旅のトラブルは「エラー」か、それとも「ドラマ」か？", en: "Are travel troubles 'errors' or 'drama'?", pos:{flow:2}, neg:{order:2} },
+        { cat: "INTENSITY", ja: "旅の目的は「癒やし」か、それとも「消耗」か？", en: "Is the goal of travel 'healing' or 'exhaustion'?", pos:{safe:2}, neg:{active:2} },
+        { cat: "RISK", ja: "治安の悪いスラム街。安全圏から見るか、降りて歩くか？", en: "Would you walk inside a gritty slum or watch from a bus?", pos:{active:2}, neg:{safe:2} },
+        { cat: "INVESTMENT", ja: "予算を使うなら「極上の安息」か、「極限の体験」か？", en: "Invest in 'luxury rest' or 'extreme experience'?", pos:{safe:2}, neg:{active:2} },
+        { cat: "SOLITUDE", ja: "大自然の中での孤独。寂しいか、全能感を感じるか？", en: "Alone in nature: Do you feel 'lonely' or 'empowered'?", pos:{solo:2}, neg:{social:2} },
+        { cat: "CONNECTION", ja: "言葉の通じない現地人との交流。避けるか、飛び込むか？", en: "Interacting with locals: Avoid or Dive in?", pos:{social:2}, neg:{solo:2} },
+        { cat: "PARTNER", ja: "同行者は「従順な人」か、「振り回してくる人」か？", en: "Partner preference: 'Obedient' or 'Crazy'?", pos:{social:1,flow:1}, neg:{solo:1,order:1} },
+        { cat: "CORE", ja: "旅とは「日常の回復」か、それとも「価値観の破壊」か？", en: "Travel is: 'Restoring daily life' or 'Destroying values'?", pos:{active:2,mud:1}, neg:{safe:2,clean:1} }
+    ];
+
+    let qIdx = 0;
+    let scores = {mud:0, clean:0, flow:0, order:0, active:0, safe:0, solo:0, social:0};
+
+    // --- LOGIC ---
+    function toggleLang(){
+        lang = lang==='en' ? 'ja' : 'en';
+        updateUIText();
+        if(qIdx>0 && qIdx<Q.length) renderQ(); // Re-render if in quiz
+        else if(finalId) updateResultUI(); // Re-render if in result
     }
 
-    function updateInfoBox(spot) {
-        const name = currentLang === 'ja' ? spot.rec : spot.rec_en;
-        currentSpotName = name; // Share用変数更新
-        document.getElementById('rec-content').innerText = name;
-        
-        // 【修正】タグが空の場合はリンクを無効化せずトップへ（または非表示）
-        const tag = spot.tag ? spot.tag : "";
-        document.getElementById('insta-link').href = tag ? `https://www.instagram.com/explore/tags/${tag}/` : "#";
-        document.getElementById('insta-link').innerText = `${translations[currentLang].instaBtn} ${tag ? '#'+tag : ''}`;
+    function updateUIText(){
+        const t = T[lang];
+        document.getElementById('t-head').innerHTML = t.head.replace('\n', '<br>');
+        document.getElementById('t-sub').innerHTML = t.sub.replace('\n', '<br>');
+        document.getElementById('t-start').innerText = t.start;
+        document.getElementById('lang-btn').innerText = lang==='en' ? "EN / JP" : "JP / EN";
     }
 
-    function initMap() {
-        const container = document.getElementById('map-container');
-        container.style.display = 'block';
+    function startQuiz(){
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        renderQ();
+    }
+
+    function renderQ(){
+        if(qIdx >= Q.length){ finishQuiz(); return; }
+        const q = Q[qIdx];
+        document.getElementById('q-cat').innerText = q.cat;
+        document.getElementById('q-text').innerText = lang==='ja' ? q.ja : q.en;
+        document.getElementById('progress').style.width = `${((qIdx)/Q.length)*100}%`;
         
-        if(map) { 
-            map.invalidateSize(); // 【重要】リサイズ通知でグレー画面防止
-            return; 
-        }
+        const box = document.getElementById('options-box');
+        box.innerHTML = '';
         
+        // 5 Options with Weights
+        const opts = [
+            { l: lang==='ja'?"強くそう思う":"Strongly Agree", w: 2, c: "opt-5" },
+            { l: lang==='ja'?"そう思う":"Agree", w: 1, c: "opt-4" },
+            { l: lang==='ja'?"どちらでもない":"Neutral", w: 0, c: "opt-3" },
+            { l: lang==='ja'?"そう思わない":"Disagree", w: -1, c: "opt-2" },
+            { l: lang==='ja'?"全くそう思わない":"Strongly Disagree", w: -2, c: "opt-1" }
+        ];
+
+        opts.forEach(o => {
+            const btn = document.createElement('div');
+            btn.className = `opt-btn ${o.c}`;
+            btn.innerHTML = `<span>${o.l}</span>`; // Text
+            btn.onclick = () => {
+                // Scoring Logic with Multiplier
+                // Positive Weight adds to Positive Traits
+                if(o.w > 0) Object.keys(q.pos).forEach(k => scores[k] += q.pos[k] * o.w);
+                // Negative Weight adds to Negative Traits (using absolute value)
+                if(o.w < 0) Object.keys(q.neg).forEach(k => scores[k] += q.neg[k] * Math.abs(o.w));
+                
+                qIdx++;
+                renderQ();
+            };
+            box.appendChild(btn);
+        });
+    }
+
+    function prevQ(){
+        if(qIdx > 0){ qIdx--; renderQ(); }
+        else { location.reload(); }
+    }
+
+    function finishQuiz(){
+        const axis1 = scores.mud >= scores.clean ? "泥" : "浄";
+        const axis2 = scores.active >= scores.safe ? "攻" : "安";
+        const axis3 = scores.social >= scores.solo ? "共" : "孤";
+        const axis4 = scores.flow >= scores.order ? "遊" : "律";
+        finalId = axis1 + axis2 + axis3 + axis4;
+        showResultScreen();
+    }
+
+    function showResultScreen(){
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        updateResultUI();
+        setTimeout(initMap, 200);
+    }
+
+    function updateResultUI(){
+        const tData = T[lang].types[finalId] || T[lang].types["default"];
+        document.getElementById('res-id').innerText = tData.t;
+        document.getElementById('res-desc').innerText = tData.d;
+        
+        const t = T[lang];
+        document.getElementById('opt-world').innerText = t.world;
+        document.getElementById('opt-japan').innerText = t.japan;
+        document.querySelector('.ctrl-share').innerText = t.share;
+        
+        if(map) updateMap();
+    }
+
+    function setMode(m){
+        mode = m;
+        document.getElementById('opt-world').classList.toggle('active', m==='world');
+        document.getElementById('opt-japan').classList.toggle('active', m==='japan');
+        updateMap();
+    }
+
+    function initMap(){
+        if(map) { map.invalidateSize(); return; }
         map = L.map('map');
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap', maxZoom: 19
+            attribution: '&copy; CARTO', maxZoom: 19
         }).addTo(map);
+        updateMap();
     }
 
-    function updateMapPins(spots) {
-        if (!map) return;
-        map.invalidateSize(); // 念のためここでも呼ぶ
-        
+    function updateMap(){
+        if(!map) return;
         markers.forEach(m => map.removeLayer(m));
         markers = [];
-        const bounds = [];
         
-        spots.forEach(spot => {
-            // 【修正】スポットが1つならsetView、複数ならbounds
-            if (spots.length === 1) {
-                map.setView([spot.lat, spot.lng], spot.zoom || 12);
-            }
+        const allSpots = dataCache[finalId] || [];
+        let spots = [];
+        if(mode === 'japan') spots = allSpots.filter(s => s.region === 'japan');
+        else spots = allSpots.filter(s => s.region === 'world');
+
+        if(spots.length === 0) return;
+
+        const bounds = [];
+        spots.forEach(s => {
+            const isSaved = saved.has(s.uid);
+            const cls = isSaved ? 'pin-sav' : 'pin-sys';
+            const icon = L.divIcon({className:'', html:`<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png" class="leaflet-marker-icon ${cls}" style="margin-left:-12px; margin-top:-41px;">`});
             
-            const marker = L.marker([spot.lat, spot.lng]).addTo(map);
-            marker.on('click', () => { updateInfoBox(spot); marker.openPopup(); });
-            
-            const name = currentLang === 'ja' ? spot.rec : spot.rec_en;
-            const desc = spot.desc || "Recommended";
-            marker.bindPopup(`<div class="map-card"><h4>${name}</h4><p>${desc}</p></div>`);
-            
-            markers.push(marker);
-            bounds.push([spot.lat, spot.lng]);
+            const m = L.marker([s.lat, s.lng], {icon:icon}).addTo(map);
+            m.on('click', () => showSpot(s));
+            markers.push(m);
+            bounds.push([s.lat, s.lng]);
         });
 
-        // 複数スポットがある場合のみ自動ズーム
-        if (spots.length > 1 && bounds.length > 0) {
-            map.fitBounds(bounds, { padding: [50, 50] });
+        if(spots.length===1) map.setView([spots[0].lat, spots[0].lng], spots[0].zoom);
+        else map.fitBounds(bounds, {padding:[50,50]});
+
+        showSpot(spots[0]);
+    }
+
+    function showSpot(s){
+        curSpot = s;
+        const n = lang==='ja' ? (s.name_jp||s.rec) : (s.name_en||s.rec);
+        document.getElementById('spot-name').innerText = n;
+        document.getElementById('spot-desc').innerText = s.desc || "Recommended Spot";
+        
+        const btnInsta = document.getElementById('btn-insta');
+        if(s.tag){
+            btnInsta.href = `https://www.instagram.com/explore/tags/${s.tag}/`;
+            btnInsta.style.opacity = 1; btnInsta.style.pointerEvents = 'auto';
+        } else {
+            btnInsta.style.opacity = 0.5; btnInsta.style.pointerEvents = 'none';
+        }
+        updateSaveBtn();
+    }
+
+    function toggleSave(){
+        if(!curSpot) return;
+        const k = curSpot.uid;
+        if(saved.has(k)) saved.delete(k); else saved.add(k);
+        localStorage.setItem('tid_saved', JSON.stringify([...saved]));
+        updateSaveBtn();
+        updateMap();
+    }
+
+    function updateSaveBtn(){
+        if(!curSpot) return;
+        const isSaved = saved.has(curSpot.uid);
+        const btn = document.getElementById('btn-save');
+        const icon = document.getElementById('icon-save');
+        const txt = document.getElementById('txt-save');
+        const t = T[lang];
+
+        if(isSaved){
+            btn.classList.add('saved');
+            icon.innerText = '♥';
+            txt.innerText = t.saved;
+        } else {
+            btn.classList.remove('saved');
+            icon.innerText = '♡';
+            txt.innerText = t.save;
         }
     }
 
-    // 【修正】シェア文言におすすめスポット追加
-    function shareOnX() {
-        const text = `My Travel ID: ${finalId}\nRec: ${currentSpotName}\n#TravelID`;
-        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`, '_blank');
+    function shareMap() {
+        const savedArr = Array.from(saved);
+        const baseUrl = window.location.origin + window.location.pathname;
+        const shareUrl = `${baseUrl}?id=${finalId}&saved=${savedArr.join(',')}`;
+        
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            alert(lang==='ja' ? "URLをコピーしました！友達にシェアしましょう。" : "URL copied! Share it with your tribe.");
+        });
     }
-    
-    function copyForDiscord() {
-        const text = `My Travel ID: ${finalId}\nRecommended: ${currentSpotName}\n${window.location.href}`;
-        navigator.clipboard.writeText(text).then(() => alert("Copied for Discord!"));
-    }
+
+    init();
 </script>
 </body>
 </html>
