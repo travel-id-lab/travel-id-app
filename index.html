@@ -39,14 +39,12 @@
         .modal-content { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
         .modal-input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid var(--border); border-radius: 8px; font-size: 16px; }
 
-        /* Header & Lang Switch */
+        /* Header */
         .header { padding: 40px 24px 30px; position: relative; }
         .lang-switch { position: absolute; top: 20px; right: 24px; font-size: 11px; font-weight: 800; color: var(--primary); background: white; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); cursor: pointer; z-index: 40; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        
         .brand-tag { font-size: 11px; font-weight: 800; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; display: block; margin-bottom: 10px; }
         h1 { font-size: 36px; font-weight: 900; margin: 0; line-height: 1.1; letter-spacing: -1px; }
         .hero-sub { font-size: 15px; color: var(--secondary); margin-top: 15px; font-weight: 500; }
-
         .btn-primary { background: var(--primary); color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 30px; display: flex; justify-content: space-between; align-items: center; transition: opacity 0.2s; }
         .btn-primary:active { transform: scale(0.98); }
 
@@ -57,7 +55,6 @@
         .progress-bar { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s ease; }
         .q-cat { font-size: 10px; font-weight: 800; color: var(--accent); letter-spacing: 1px; display: block; margin-bottom: 8px;}
         .q-text { font-size: 20px; font-weight: 800; margin-bottom: 30px; min-height: 60px; line-height: 1.4; }
-        
         .opt-btn { width: 100%; padding: 16px; margin-bottom: 10px; border: 1px solid var(--border); border-radius: 12px; background: white; text-align: left; font-weight: 600; cursor: pointer; transition: 0.1s; }
         .opt-btn:active { background: #f3f4f6; }
         .opt-5 { border-left: 6px solid var(--scale-5); } .opt-4 { border-left: 4px solid var(--scale-4); } .opt-3 { border-left: 2px solid var(--scale-3); } .opt-2 { border-left: 1px solid var(--scale-2); } .opt-1 { border-left: 1px solid var(--scale-1); }
@@ -77,8 +74,9 @@
         .controls { padding: 10px 24px; display: flex; gap: 8px; border-bottom: 1px solid var(--border); background: white; }
         .ctrl-pill { padding: 6px 14px; border-radius: 20px; border: none; background: #f1f5f9; color: var(--secondary); font-weight: 700; font-size: 12px; cursor: pointer; }
         .ctrl-pill.active { background: var(--primary); color: white; }
-        #map-container { flex-grow: 1; min-height: 300px; background: #e5e7eb; }
-        #map { width: 100%; height: 100%; }
+        
+        #map-container { flex-grow: 1; min-height: 300px; background: #e5e7eb; position: relative; z-index: 1;}
+        #map { width: 100%; height: 100%; position: absolute; top:0; left:0; }
         
         /* Spot Card */
         .spot-card { padding: 24px; background: white; border-top: 1px solid var(--border); z-index: 100; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); }
@@ -88,6 +86,8 @@
         .act-btn { flex: 1; padding: 14px; border-radius: 12px; border: 1px solid var(--border); text-align: center; font-weight: 700; cursor: pointer; font-size: 13px; color: var(--primary); display: flex; justify-content: center; align-items: center; gap: 6px; text-decoration: none;}
         .act-save.saved { background: var(--pink); color: white; border-color: var(--pink); animation: pop 0.4s ease; }
         .act-vibe { background: var(--primary); color: white; border-color: var(--primary); }
+        .act-vibe.disabled { opacity: 0.5; pointer-events: none; background: #eee; border-color: #eee; color: #999; }
+        
         @keyframes pop { 50% { transform: scale(1.1); } }
         
         img.leaflet-marker-icon { transition: all 0.3s; }
@@ -115,17 +115,14 @@
 
     <section id="start-screen" class="header">
         <button class="lang-switch" onclick="toggleLang()" id="lang-btn">EN / JP</button>
-        
         <span class="brand-tag">Travel ID</span>
         <h1 id="t-head">Decode Your<br>Travel DNA.</h1>
         <p class="hero-sub" id="t-sub">We don't match you by demographics.<br>We match you by values.</p>
-        
         <button class="btn-primary" onclick="startQuiz()">
             <span id="t-start">Analyze My Style</span> <span>→</span>
         </button>
-        
         <div style="margin-top:40px; border-top:1px solid #f1f5f9; padding-top:20px;">
-            <p style="font-size:11px; color:#9ca3af; line-height:1.5;">v34.0 (Action Fixed)</p>
+            <p style="font-size:11px; color:#9ca3af; line-height:1.5;">v35.0 (Final Polish)</p>
         </div>
     </section>
 
@@ -142,7 +139,6 @@
     <section id="mbti-screen" class="hidden">
         <h2 style="font-size:24px; font-weight:900; margin-bottom:20px;">One last thing...</h2>
         <p style="margin-bottom:20px; font-size:14px; color:#666;">What is your MBTI?</p>
-        
         <select id="mbti-select" style="width:100%; padding:16px; border-radius:12px; border:2px solid #e2e8f0; font-size:16px; font-weight:700; margin-bottom:20px; background:white;">
             <option value="" disabled selected>Select MBTI</option>
             <option value="INTJ">INTJ</option><option value="INTP">INTP</option><option value="ENTJ">ENTJ</option><option value="ENTP">ENTP</option>
@@ -151,7 +147,6 @@
             <option value="ISTP">ISTP</option><option value="ISFP">ISFP</option><option value="ESTP">ESTP</option><option value="ESFP">ESFP</option>
             <option value="UNKNOWN">I don't know</option>
         </select>
-        
         <button class="btn-primary" onclick="submitMBTI()">
             <span>See Results</span> <span>→</span>
         </button>
@@ -160,17 +155,13 @@
     <section id="result-screen" class="hidden">
         <div class="res-header">
             <span class="brand-tag">YOUR SEGMENT</span>
-            
             <div id="res-kanji" class="id-kanji">【 】</div>
             <h2 id="res-id" class="id-title">LOADING</h2>
             <div id="res-mbti" class="id-mbti">MBTI</div>
-            
             <div id="img-container" style="max-width:200px; margin:0 auto 15px; border-radius:12px; overflow:hidden; display:none;">
                 <img id="type-image" style="width:100%; display:block;" src="" onerror="this.parentElement.style.display='none'">
             </div>
-
             <p id="res-desc" class="id-desc">Analysis complete.</p>
-            
             <div class="tribe-actions">
                 <button class="tribe-btn discord" onclick="copyDiscordProfile()">📋 Copy Profile for Discord</button>
                 <a href="https://forms.gle/5L7ndRzgPnh45Mor8" target="_blank" class="tribe-btn">⚡ Submit Spot</a>
@@ -188,10 +179,10 @@
 
         <div class="spot-card">
             <h3 id="spot-name" class="spot-n">Map Loading...</h3>
-            <p id="spot-desc" class="spot-d">Select a pin.</p>
+            <p id="spot-desc" class="spot-d">Select a pin to reveal spots.</p>
             <div class="actions">
                 <button id="btn-save" class="act-btn act-save" onclick="toggleSave()">♡ Save</button>
-                <a id="btn-insta" href="#" target="_blank" class="act-btn act-vibe">▶ Vibe</a>
+                <a id="btn-insta" href="javascript:void(0)" target="_blank" class="act-btn act-vibe disabled">▶ Vibe</a>
             </div>
         </div>
     </section>
@@ -207,11 +198,10 @@
 
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRrOI46FP-ueet2ZD0xKG0r1_xFng90_PDr1Z-sm6OB5xe3I8m0nx5Q5aNIVxvRVi1QLczBbv4pdnAv/pub?output=csv';
     
-    // !!! CRITICAL FIX: Use specific variable name to avoid collision with library !!!
+    // Prevent variable collision
     const travelSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Global State
-    let state = { lang: 'en', mode: 'japan', finalId: "", mbti: "", map: null, markers: [], data: {}, saved: new Set(), qIdx: 0, scores: {mud:0, clean:0, flow:0, order:0, active:0, safe:0, solo:0, social:0}, user: null };
+    let state = { lang: 'en', mode: 'japan', finalId: "", mbti: "", map: null, markers: [], data: {}, saved: new Set(), qIdx: 0, scores: {mud:0, clean:0, flow:0, order:0, active:0, safe:0, solo:0, social:0}, user: null, curSpot: null };
 
     // Questions
     const Q = [
@@ -391,7 +381,8 @@
     function showResultScreen(){
         document.getElementById('result-screen').classList.remove('hidden');
         updateResultUI();
-        setTimeout(()=>{ if(!state.map) initMap(); else state.map.invalidateSize(); updateMap(); }, 200);
+        // ★ CRITICAL FIX: Ensure map resizes AFTER transition
+        setTimeout(()=>{ if(!state.map) initMap(); else state.map.invalidateSize(); updateMap(); }, 300);
     }
 
     function updateResultUI(){
@@ -475,6 +466,9 @@
             bounds.push([s.lat, s.lng]);
         });
         state.map.fitBounds(bounds, {padding:[50,50]});
+        
+        // ★ AUTO SELECT FIRST SPOT ★
+        if(spots.length > 0) showSpot(spots[0]);
     }
 
     function showSpot(s){
@@ -482,15 +476,19 @@
         document.getElementById('spot-name').innerText = state.lang==='ja'?s.name_jp:s.name_en;
         document.getElementById('spot-desc').innerText = s.desc || "Recommended";
         const btn = document.getElementById('btn-insta');
-        if(s.tag){ btn.href=`https://www.instagram.com/explore/tags/${s.tag}/`; btn.style.opacity=1; btn.style.pointerEvents='auto'; }
-        else { btn.style.opacity=0.5; btn.style.pointerEvents='none'; }
+        // Enable/Disable Vibe Button
+        if(s.tag){ 
+            btn.href=`https://www.instagram.com/explore/tags/${s.tag}/`; 
+            btn.classList.remove('disabled');
+        } else { 
+            btn.href="javascript:void(0)"; 
+            btn.classList.add('disabled');
+        }
         updateSaveBtn();
     }
 
     function toggleSave(){
         if(!state.curSpot) return;
-        if(!state.user && !confirm("You are in Guest Mode. Data may be lost if you clear cache. Log in to save permanently?")) return;
-        
         const k = state.curSpot.uid;
         if(state.saved.has(k)) state.saved.delete(k); else state.saved.add(k);
         localStorage.setItem('tid_saved', JSON.stringify([...state.saved]));
@@ -504,8 +502,8 @@
         const saved = state.saved.has(state.curSpot.uid);
         const btn = document.getElementById('btn-save');
         const t = T[state.lang];
-        if(saved) { btn.classList.add('saved'); btn.innerHTML = '♥ Saved'; }
-        else { btn.classList.remove('saved'); btn.innerHTML = '♡ Save'; }
+        if(saved) { btn.classList.add('saved'); btn.innerHTML = '♥ ' + t.saved; }
+        else { btn.classList.remove('saved'); btn.innerHTML = '♡ ' + t.save; }
     }
 
     // Modal & Shares
