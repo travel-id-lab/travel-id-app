@@ -45,6 +45,7 @@
         .hero-sub { font-size: 15px; color: var(--secondary); margin-top: 15px; font-weight: 500; }
         .btn-primary { background: var(--primary); color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 30px; display: flex; justify-content: space-between; align-items: center; transition: opacity 0.2s; }
         .btn-primary:active { transform: scale(0.98); }
+        .btn-secondary { background: white; color: var(--secondary); border: 2px solid var(--border); padding: 16px; width: 100%; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 10px; display: flex; justify-content: center; align-items: center; }
 
         /* Quiz UI */
         #quiz-screen, #mbti-screen { padding: 60px 24px; }
@@ -65,7 +66,6 @@
         .id-mbti { font-size: 12px; font-weight: 800; background: #eef2ff; padding: 4px 12px; border-radius: 20px; display: inline-block; margin-bottom: 15px; border:1px solid #c7d2fe; }
         .id-desc { font-size: 13px; color: var(--secondary); text-align: left; margin: 15px 0 15px; line-height: 1.6; }
         
-        /* Parameter Dashboard */
         .param-toggle { width: 100%; padding: 12px; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 700; color: var(--primary); cursor: pointer; margin-bottom: 15px; display: flex; justify-content: center; align-items: center; gap: 6px; }
         .param-box { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left; display: none; border: 1px solid var(--border); }
         .param-row { margin-bottom: 12px; }
@@ -77,7 +77,14 @@
         .tribe-btn { padding: 12px; border: 1px solid var(--border); background: white; border-radius: 8px; font-weight: 700; font-size: 11px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 5px; color: var(--primary); text-decoration: none;}
         .tribe-btn.discord { grid-column: span 2; background: var(--discord); color: white; border: none; font-size: 13px; padding: 14px;}
 
-        /* Map & Controls */
+        /* MAP MODE SWITCHER (Curator Style) */
+        .map-mode-switch { display: flex; padding: 15px 24px 0; gap: 10px; background: white; }
+        .mode-btn { flex: 1; padding: 12px 5px; text-align: center; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; background: #f8fafc; color: var(--secondary); transition: all 0.2s; line-height: 1.2; }
+        .mode-btn strong { display: block; font-size: 13px; font-weight: 800; margin-bottom: 2px; }
+        .mode-btn span { font-size: 10px; font-weight: 500; opacity: 0.8; }
+        .mode-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+        /* Controls */
         .controls { padding: 10px 24px; display: flex; gap: 8px; border-bottom: 1px solid var(--border); background: white; }
         .ctrl-pill { padding: 6px 14px; border-radius: 20px; border: none; background: #f1f5f9; color: var(--secondary); font-weight: 700; font-size: 12px; cursor: pointer; }
         .ctrl-pill.active { background: var(--primary); color: white; }
@@ -85,6 +92,12 @@
         #map-container { height: 50vh; width: 100%; background: #e5e7eb; position: relative; z-index: 1;}
         #map { width: 100%; height: 100%; }
         
+        /* Empty State Overlay */
+        .empty-map-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(255,255,255,0.9); padding: 20px; border-radius: 12px; width: 80%; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: none; }
+        .empty-map-msg h3 { margin: 0 0 10px; font-size: 16px; }
+        .empty-map-msg p { font-size: 12px; color: #666; margin: 0 0 15px; }
+        .empty-map-msg button { padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; }
+
         .spot-card { padding: 24px; background: white; border-top: 1px solid var(--border); z-index: 100; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); }
         .spot-n { margin: 0; font-size: 16px; font-weight: 800; }
         .spot-d { font-size: 12px; color: var(--secondary); margin-bottom: 15px; }
@@ -124,11 +137,22 @@
         <span class="brand-tag">Travel ID</span>
         <h1 id="t-head">Decode Your<br>Travel DNA.</h1>
         <p class="hero-sub" id="t-sub">We don't match you by demographics.<br>We match you by values.</p>
-        <button class="btn-primary" onclick="startQuiz()">
+        
+        <button id="btn-start" class="btn-primary" onclick="startQuiz()">
             <span id="t-start">Analyze My Style</span> <span>→</span>
         </button>
+
+        <div id="logged-in-actions" class="hidden" style="margin-top:30px;">
+            <button class="btn-primary" onclick="showResultScreen(true)">
+                <span>📍 Open My Map</span> <span>→</span>
+            </button>
+            <button class="btn-secondary" onclick="startQuiz()">
+                <span>🔄 Retake Quiz</span>
+            </button>
+        </div>
+
         <div style="margin-top:40px; border-top:1px solid #f1f5f9; padding-top:20px;">
-            <p style="font-size:11px; color:#9ca3af; line-height:1.5;">v40.0 (Password Login)</p>
+            <p style="font-size:11px; color:#9ca3af; line-height:1.5;">v43.0 (The Curator Edition)</p>
         </div>
     </section>
 
@@ -185,22 +209,10 @@
             
             <button class="param-toggle" onclick="toggleParams()">🧬 View Travel DNA</button>
             <div id="param-box" class="param-box">
-                <div class="param-row">
-                    <div class="param-labels"><span>MUD (Raw)</span><span>CLEAN (Comfort)</span></div>
-                    <div class="param-track"><div id="bar-mud" class="param-fill"></div></div>
-                </div>
-                <div class="param-row">
-                    <div class="param-labels"><span>ACTIVE (Intense)</span><span>SAFE (Gentle)</span></div>
-                    <div class="param-track"><div id="bar-active" class="param-fill"></div></div>
-                </div>
-                <div class="param-row">
-                    <div class="param-labels"><span>SOLO (Freedom)</span><span>SOCIAL (Connect)</span></div>
-                    <div class="param-track"><div id="bar-solo" class="param-fill"></div></div>
-                </div>
-                <div class="param-row">
-                    <div class="param-labels"><span>FLOW (Chaos)</span><span>ORDER (Plan)</span></div>
-                    <div class="param-track"><div id="bar-flow" class="param-fill"></div></div>
-                </div>
+                <div class="param-row"><div class="param-labels"><span>MUD</span><span>CLEAN</span></div><div class="param-track"><div id="bar-mud" class="param-fill"></div></div></div>
+                <div class="param-row"><div class="param-labels"><span>ACTIVE</span><span>SAFE</span></div><div class="param-track"><div id="bar-active" class="param-fill"></div></div></div>
+                <div class="param-row"><div class="param-labels"><span>SOLO</span><span>SOCIAL</span></div><div class="param-track"><div id="bar-solo" class="param-fill"></div></div></div>
+                <div class="param-row"><div class="param-labels"><span>FLOW</span><span>ORDER</span></div><div class="param-track"><div id="bar-flow" class="param-fill"></div></div></div>
             </div>
 
             <div class="tribe-actions">
@@ -210,13 +222,29 @@
             </div>
         </div>
 
+        <div class="map-mode-switch">
+            <div id="mode-dna" class="mode-btn active" onclick="setMapSource('dna')">
+                <strong>🔍 DNA Map</strong><span>Discover</span>
+            </div>
+            <div id="mode-mine" class="mode-btn" onclick="setMapSource('mine')">
+                <strong>📍 My Map</strong><span>Curate</span>
+            </div>
+        </div>
+
         <div class="controls">
-            <button id="opt-japan" class="ctrl-pill active" onclick="setMode('japan')">Japan</button>
-            <button id="opt-world" class="ctrl-pill" onclick="setMode('world')">Global</button>
+            <button id="opt-japan" class="ctrl-pill active" onclick="setRegion('japan')">Japan</button>
+            <button id="opt-world" class="ctrl-pill" onclick="setRegion('world')">Global</button>
             <button class="ctrl-pill" style="margin-left:auto;" onclick="shareUrl()">🔗 Copy URL</button>
         </div>
 
-        <div id="map-container"><div id="map"></div></div>
+        <div id="map-container">
+            <div id="map"></div>
+            <div id="empty-msg" class="empty-map-msg">
+                <h3>Start Curating</h3>
+                <p>Your map is a blank canvas.<br>Find resonance in the DNA Map.</p>
+                <button onclick="setMapSource('dna')">Go to DNA Map</button>
+            </div>
+        </div>
 
         <div class="spot-card">
             <h3 id="spot-name" class="spot-n">Map Loading...</h3>
@@ -234,15 +262,13 @@
     // ★ SUPABASE CONFIG ★
     // ==========================================
     const SUPABASE_URL = 'https://zqghkzukkzmpszdxyqgf.supabase.co'.trim();
-    // Aggressive whitespace removal
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxZ2hrenVra3ptcHN6ZHh5cWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxNzg2NDYsImV4cCI6MjA4NDc1NDY0Nn0.2-ng4M5LLMkTcQp5pqzg8INEQbDef1HQS4zxFWg_DXg'.replace(/\s/g, '');
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRrOI46FP-ueet2ZD0xKG0r1_xFng90_PDr1Z-sm6OB5xe3I8m0nx5Q5aNIVxvRVi1QLczBbv4pdnAv/pub?output=csv';
     // ==========================================
 
     const travelSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    let state = { lang: 'en', mode: 'japan', finalId: "", mbti: "", map: null, markers: null, data: {}, saved: new Set(), qIdx: 0, scores: {mud:0, clean:0, flow:0, order:0, active:0, safe:0, solo:0, social:0}, user: null, curSpot: null };
+    let state = { lang: 'en', region: 'japan', mapSource: 'dna', finalId: "", mbti: "", map: null, markers: null, data: {}, saved: new Set(), qIdx: 0, scores: {mud:0, clean:0, flow:0, order:0, active:0, safe:0, solo:0, social:0}, user: null, curSpot: null };
 
-    // Roles Dictionary
     const MBTI_ROLES = {
         "INTJ": "建築家", "INTP": "論理学者", "ENTJ": "指揮官", "ENTP": "討論者",
         "INFJ": "提唱者", "INFP": "仲介者", "ENFJ": "主人公", "ENFP": "運動家",
@@ -266,66 +292,59 @@
         { cat: "CORE", ja: "私にとって旅とは「日常の回復」ではなく「価値観の破壊」だ。", en: "To me, travel is about destroying values, not restoring daily life.", pos:{active:2,mud:1}, neg:{safe:2,clean:1} }
     ];
 
-    // --- AUTH ---
     async function checkUser() {
         const { data: { session } } = await travelSupabase.auth.getSession();
-        if (session) {
-            state.user = session.user;
-            updateAuthUI();
-            await loadProfile(); 
-        }
+        if (session) { state.user = session.user; updateAuthUI(); await loadProfile(); }
     }
     
-    // ★ NEW LOGIN LOGIC (PASSWORD SUPPORT) ★
     async function handleLogin() {
         const email = document.getElementById('email-input').value.trim();
         const password = document.getElementById('password-input').value.trim();
-        
         if (!email || !password) return alert("Please enter both email and password.");
         
-        // 1. Try to login
         const { data, error } = await travelSupabase.auth.signInWithPassword({ email, password });
-        
         if (error) {
-            // 2. If login failed, try to SIGN UP instead
             console.log("Login failed, trying signup...", error.message);
             const { data: upData, error: upError } = await travelSupabase.auth.signUp({ email, password });
-            
-            if (upError) {
-                alert("Error: " + upError.message);
-            } else {
-                alert("Account created and Logged in!");
-                closeLoginModal();
-                checkUser();
-            }
+            if (upError) alert("Error: " + upError.message);
+            else { alert("Account created and Logged in!"); closeLoginModal(); checkUser(); }
         } else {
-            alert("Logged in successfully!");
-            closeLoginModal();
-            checkUser();
+            alert("Logged in successfully!"); closeLoginModal(); checkUser();
         }
     }
 
     async function handleLogout() { await travelSupabase.auth.signOut(); location.reload(); }
+    
     function updateAuthUI() {
         if (state.user) {
-            document.getElementById('user-display').innerText = state.user.email; // Show email
+            document.getElementById('user-display').innerText = state.user.email;
             const b = document.getElementById('auth-action-btn');
             b.innerText = "Logout"; b.onclick = handleLogout;
         }
     }
+    
     async function saveProfile() {
         if (!state.user) return;
         await travelSupabase.from('profiles').upsert({
             id: state.user.id, updated_at: new Date(), saved_spots: Array.from(state.saved), final_id: state.finalId, mbti: state.mbti
         });
     }
+
     async function loadProfile() {
         if (!state.user) return;
         const { data } = await travelSupabase.from('profiles').select('*').eq('id', state.user.id).single();
-        if (data && data.saved_spots) { state.saved = new Set(data.saved_spots); if (state.map) updateMap(); }
+        if (data) {
+            if (data.saved_spots) state.saved = new Set(data.saved_spots);
+            if (data.final_id) {
+                state.finalId = data.final_id;
+                state.mbti = data.mbti || "";
+                document.getElementById('btn-start').classList.add('hidden');
+                document.getElementById('logged-in-actions').classList.remove('hidden');
+                document.getElementById('t-sub').innerText = "Welcome back. Ready to explore?";
+            }
+        }
     }
 
-    // --- APP INIT ---
     document.addEventListener('DOMContentLoaded', () => { init(); });
 
     function init(){
@@ -396,12 +415,13 @@
         saveProfile();
     }
 
-    // --- DASHBOARD & MAP ---
-    function showResultScreen(){
+    function showResultScreen(openMyMap = false){
+        document.getElementById('start-screen').classList.add('hidden'); 
         document.getElementById('result-screen').classList.remove('hidden');
         updateResultUI();
         
-        // ★ MAP REPAIR: Observer & Delayed Init
+        if(openMyMap) setMapSource('mine'); 
+
         const mapDiv = document.getElementById('map-container');
         const resizeObserver = new ResizeObserver(() => { if(state.map) state.map.invalidateSize(); });
         resizeObserver.observe(mapDiv);
@@ -425,8 +445,6 @@
 
     function updateResultUI(){
         document.getElementById('res-kanji').innerText = `【 ${state.finalId} 】`;
-        
-        // MBTI Display Repair
         let mbtiText = `MBTI: ${state.mbti}`;
         if(MBTI_ROLES[state.mbti] && state.lang === 'ja') mbtiText += `（${MBTI_ROLES[state.mbti]}）`;
         document.getElementById('res-mbti').innerText = mbtiText;
@@ -445,25 +463,20 @@
         document.getElementById('res-id').innerText = title;
         document.getElementById('res-desc').innerText = getDynamicDesc(state.finalId);
         
-        // Update Bar Charts
         const calcPct = (a, b) => { const total = (a + b) || 1; return Math.round((a / total) * 100) + "%"; };
         document.getElementById('bar-mud').style.width = calcPct(state.scores.mud, state.scores.clean);
         document.getElementById('bar-active').style.width = calcPct(state.scores.active, state.scores.safe);
         document.getElementById('bar-solo').style.width = calcPct(state.scores.solo, state.scores.social);
         document.getElementById('bar-flow').style.width = calcPct(state.scores.flow, state.scores.order);
 
-        // Texts
         const t = T[state.lang];
         document.getElementById('t-head').innerHTML = t.head.replace('\n', '<br>');
         document.getElementById('t-sub').innerHTML = t.sub.replace('\n', '<br>');
         document.getElementById('t-start').innerText = t.start;
-        // SAFE DOM ACCESS - FIX FOR CRASH
         const discordBtn = document.querySelector('.tribe-btn.discord');
         if(discordBtn) discordBtn.innerText = "📋 " + t.discord;
-        
         const formBtn = document.querySelector('a[href*="forms"]');
         if(formBtn) formBtn.innerText = "⚡ " + t.submit;
-
         document.getElementById('opt-world').innerText = t.world;
         document.getElementById('opt-japan').innerText = t.japan;
         
@@ -490,24 +503,45 @@
 
     function initMap(){
         state.map = L.map('map');
-        // ★ Changed to OpenStreetMap for better reliability
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors', maxZoom: 18
-        }).addTo(state.map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap', maxZoom: 18 }).addTo(state.map);
         state.markers = L.markerClusterGroup({ maxClusterRadius: 50, spiderfyOnMaxZoom: true });
         state.map.addLayer(state.markers);
     }
+
+    function setMapSource(source) {
+        state.mapSource = source;
+        document.getElementById('mode-dna').classList.toggle('active', source === 'dna');
+        document.getElementById('mode-mine').classList.toggle('active', source === 'mine');
+        updateMap();
+    }
+    function setRegion(r){ state.region=r; document.getElementById('opt-japan').classList.toggle('active', r==='japan'); document.getElementById('opt-world').classList.toggle('active', r==='world'); updateMap(); }
 
     function updateMap(){
         if(!state.map) return;
         state.markers.clearLayers();
         
-        let raw = state.data[state.finalId] || [];
-        // Fallback: If no match, show ALL spots
-        if(raw.length === 0) raw = Object.values(state.data).flat();
+        let sourceList = [];
+        if(state.mapSource === 'dna') {
+            sourceList = state.data[state.finalId] || [];
+            if(sourceList.length === 0) sourceList = Object.values(state.data).flat(); 
+            document.getElementById('empty-msg').style.display = 'none';
+        } else {
+            // MINE MODE
+            const allSpots = Object.values(state.data).flat();
+            sourceList = allSpots.filter(s => state.saved.has(s.uid));
+            
+            // Empty State
+            if(sourceList.length === 0) {
+                document.getElementById('empty-msg').style.display = 'block';
+                state.map.setView([35.6895, 139.6917], 5);
+                return;
+            } else {
+                document.getElementById('empty-msg').style.display = 'none';
+            }
+        }
 
-        let spots = state.mode==='japan' ? raw.filter(s=>s.region==='japan') : raw.filter(s=>s.region==='world');
-        if(spots.length===0) { state.map.setView([35.6895, 139.6917], 5); return; }
+        let spots = state.region==='japan' ? sourceList.filter(s=>s.region==='japan') : sourceList.filter(s=>s.region==='world');
+        if(spots.length===0 && state.mapSource === 'dna') { state.map.setView([35.6895, 139.6917], 5); return; }
         
         const bounds = [];
         spots.forEach(s=>{
@@ -568,7 +602,6 @@
         const text = `I am "${state.finalId}" (${state.mbti}). #TravelID`;
         window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`, '_blank');
     }
-    function setMode(m){ state.mode=m; document.getElementById('opt-japan').classList.toggle('active', m==='japan'); document.getElementById('opt-world').classList.toggle('active', m==='world'); updateMap(); }
 </script>
 </body>
 </html>
